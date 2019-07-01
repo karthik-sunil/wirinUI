@@ -94,5 +94,5 @@ class NewClass(tk.Tk):
         frame.tkraise()
   
 app = NewClass()
-ani = anim.FuncAnimation(f,animate,interval=1000)
+ani = anim.FuncAnimation(f,animate,interval=900)
 app.mainloop()

@@ -61,6 +61,7 @@ class StartPage(tk.Frame):
         button3.pack()
   
 app = MainWindow()
-app.geometry("900x400")
-
+app.geometry("1200x500")
+app.title("wirin")
+ani = anim.FuncAnimation(f,animate,interval=900)
 app.mainloop()

@@ -1,6 +1,10 @@
+
 import tkinter as tk 
 from tkinter import ttk
 import matplotlib 
+import pandas as pd
+import numpy as np 
+import os 
 import matplotlib.animation as anim
 from matplotlib import style
 style.use("ggplot")
@@ -9,14 +13,13 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 from matplotlib.figure import Figure
 LARGE_FONT = ("Times", 12)
 
-
 f = Figure(figsize=(5,5), dpi=100)
 a = f.add_subplot(111)
 
 
 
 def animate(i):
-    pullData = open("EEG.txt","r").read()
+    pullData = open("eegdata.txt","r").read()
     dataList = pullData.split('\n')
     xList = []
     yList = []
@@ -74,6 +77,7 @@ class Plot1(tk.Frame):
         canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand = True)
         button2 = ttk.Button(self, text = "Close", command = controller.destroy) 
         button2.pack()
+      
 
 class Plot2(tk.Frame):
     
@@ -90,7 +94,7 @@ class Plot2(tk.Frame):
         toolbar = NavigationToolbar2Tk(canvas,self)
         toolbar.update()
         canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand = True)
-        button2 = ttk.Button(self, text = "Close", command = controller.destroy) 
+        button2 = ttk.Button(self, text = "Close", command = controller.destroy()) 
         button2.pack()
     
   

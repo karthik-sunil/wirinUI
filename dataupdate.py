@@ -1,7 +1,6 @@
 import time
 import math
 import random
-
 i = 0
 while(True):
     f = open("eegdata.txt","a")

@@ -126,22 +126,15 @@ class Window(tk.Frame):
         tk.Frame.__init__(self, master)
         self.master = master
         
-        tabControl = ttk.Notebook(self.master)
-        #tab1 = ttk.Frame(tabControl)
-        tab1 = Plot1(tabControl)
-        tabControl.add(tab1,text="All Graphs")
-
-        tab2 = Plot2(tabControl)
-        tabControl.add(tab2,text="Graph 1")
-        
-        tab3 = ttk.Frame(tabControl)
-        tabControl.add(tab3,text="Graph 2") 
+        menubar = tk.Menu(self.master)
+        menubar.add_command(label="Quit")
+        self.master.config(menu = menubar)
         
         self.thread = updateData(self)
         self.thread.start()
         self.master.protocol("WM_DELETE_WINDOW", self.on_close)
         
-        tabControl.pack(expan = 1, fill="both")
+        
         
     def on_close(self):
         #print("Closing")
@@ -174,6 +167,8 @@ class updateData(threading.Thread):
                 i = i + 1
         except:
             print("Application terminated")
+
+
 if __name__ == "__main__":
     root = tk.Tk()
     app = Window(root)

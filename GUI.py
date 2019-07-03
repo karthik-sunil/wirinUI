@@ -75,7 +75,7 @@ class Plot1(tk.Frame):
         canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand = True)
         button2 = ttk.Button(self, text = "Close", command = controller.destroy) 
         button2.pack()
-        button3 =ttk.Button(self, text = "Start Feed", command = csvmanager.HRFeed())
+        button3 =ttk.Button(self, text = "Start Feed", command = csvmanager.HRFeed)
         button3.pack()
 
 class Plot2(tk.Frame):
@@ -95,7 +95,7 @@ class Plot2(tk.Frame):
         canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand = True)
         button2 = ttk.Button(self, text = "Close", command = controller.destroy) 
         button2.pack()
-        button3 = ttk.Button(self,text = "Start", command = csvmanager.ECGFeed())
+        button3 = ttk.Button(self,text = "Start", command = csvmanager.ECGFeed)
         button3.pack()
     
   

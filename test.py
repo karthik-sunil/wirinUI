@@ -1,12 +1,21 @@
-import tkinter as tk 
+
+import math
+import subprocess
+import sys
+import threading
+import time
+import tkinter as tk
 from tkinter import ttk
-import matplotlib 
+
+import matplotlib
 import matplotlib.animation as anim
 from matplotlib import style
+from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,
+                                               NavigationToolbar2Tk)
+from matplotlib.figure import Figure
+
 style.use("ggplot")
 matplotlib.use("TkAgg")
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
-from matplotlib.figure import Figure
 LARGE_FONT = ("Times", 12)
 
 f1 = Figure(figsize=(5,5), dpi=100)
@@ -16,16 +25,30 @@ a1 = f1.add_subplot(111)
 f2 = Figure(figsize=(5,5), dpi=100)
 a2 = f2.add_subplot(111)
 
+def runloop(thread_queue=None):
+    '''
+    After result is produced put it in queue
+    '''
+    result = 0
+    for i in range(10000000):
+         print(i)
+         time.sleep(10)
+    thread_queue.put(result)
+
 def animateEEG(i):
     pullData = open("eegdata.txt","r").read()
     dataList = pullData.split('\n')
     xList = []
     yList = []
+    
+
     for eachLine in dataList:
         if len(eachLine)>1:
             x,y = eachLine.split(',')
             xList.append(float(x))
             yList.append(float(y))
+    xList = xList[-20:]
+    yList = yList[-20:]
     a1.clear()
     a1.plot(xList,yList)
     
@@ -59,6 +82,7 @@ class Plot1(tk.Frame):
         toolbar = NavigationToolbar2Tk(canvas,self)
         toolbar.update()
         canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand = False)
+        
 
 
 class Plot2(tk.Frame):
@@ -102,13 +126,68 @@ class Window(tk.Frame):
         
         tabControl.pack(expan = 1, fill="both")
 
+class App(threading.Thread):
 
-root = tk.Tk()
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.start()
+        
 
-app = Window(root)
+    def callback(self):
+        
+        #self.child.kill()
+        
+        self.root.quit()
 
-root.title("wirin")
-ani1 = anim.FuncAnimation(f1,animateEEG,interval=900)
-ani2 = anim.FuncAnimation(f2,animatePPG,interval=900)
-print(type(root))
-root.mainloop()
+        print("Closing")
+        
+
+    def run(self):
+        self.root = tk.Tk()
+        self.app = Window(self.root)
+
+        #self.child = subprocess.Popen([sys.executable, './dataupdate.py', '--username', 'root'])
+        self.root.title("wirin")
+        ani1 = anim.FuncAnimation(f1,animateEEG,interval=100)
+        ani2 = anim.FuncAnimation(f2,animatePPG,interval=100)
+        self.root.protocol("WM_DELETE_WINDOW", self.callback)
+
+
+        self.root.mainloop()
+
+class updateData(threading.Thread):
+    
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.event = threading.Event() 
+        self.start()
+        
+
+    def stop(self):
+        self.event.set()
+
+    def run(self):
+        i = 0
+        try:    
+            while threading.enumerate()[2].isAlive():
+                #print("OK")
+                f = open("eegdata.txt","a")
+                f.write("{},{}\n".format(i, math.sin(i)))
+                f.close()    
+                time.sleep(0.01)
+                i = i + 1
+        except:
+            print("Application terminated")
+
+if __name__ == "__main__":
+    
+    print("OK")
+    
+    
+    
+    app = App()
+    updateData = updateData()
+    updateData.join()
+    app.join()
+    l = threading.enumerate()
+print(l)

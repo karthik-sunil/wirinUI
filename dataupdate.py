@@ -4,7 +4,7 @@ import random
 i = 0
 while(True):
     f = open("eegdata.txt","a")
-    f.write("{},{}\n".format(i,i*random.randint(1,10) + 5))
+    f.write("{},{}\n".format(i, math.sin(i)))
     f.close()    
-    time.sleep(1)
+    time.sleep(0.001)
     i = i + 1

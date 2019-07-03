@@ -1,15 +1,17 @@
 import pandas 
 import time
-if __name__ == "__main__":
-    result = pandas.read_csv("data_1.csv")
-    l1 = result.values.tolist()
-    ECG = []
-    Heart = []
-    count1 = 0
-    count2 = 0
-    buffer_size1 = 0
-    buffer_size2 = 0
+
+result = pandas.read_csv("data_1.csv")
+l1 = result.values.tolist()
+ECG = []
+Heart = []
+
+
+buffer_size1 = 0
+buffer_size2 = 0
 def ECGFeed():
+    count1 = 0
+    global ECG
     while count1 < len(l1):
         buffer_size1 = count1%20   
         ECG.append(str(count1) + "," + str(l1[count1][0])+"\n")
@@ -21,6 +23,8 @@ def ECGFeed():
             time.sleep(1)
     f1.close() 
 def HRFeed():
+    count2 = 0
+    global Heart
     while count2 < len(l1):
         buffer_size2 = count2%500   
         Heart.append(str(count2) + "," + str(l1[count2][0])+"\n")

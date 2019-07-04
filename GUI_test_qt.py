@@ -47,7 +47,7 @@ toolbar.addAction(stop)
 plot  = QAction(QIcon(),"Plot", window)
 toolbar.addAction(plot)
 toolbar.actionTriggered[QAction].connect(display)
-v_layout.addAction(plot)
 window.setWindowTitle("Readings")
 window.show()
 sys.exit(app.exec_())
+

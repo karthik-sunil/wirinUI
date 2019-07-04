@@ -135,6 +135,15 @@ comPorts.setText("COM")
 
 #Comports list
 menu = QMenu()
+<<<<<<< HEAD
+menu.addAction("COM1",)
+menu.addAction("COM3",)
+#menu.triggered.connect()
+comport.setMenu(menu)
+comport.setPopupMode(QToolButton.InstantPopup)
+toolbar.addWidget(comport)
+start = QAction(QIcon(),"Start", window)
+=======
 findComPorts(menu)
 menu.triggered.connect(partial(setComPort, menu))
 comPorts.setMenu(menu)
@@ -143,12 +152,41 @@ comPorts.setPopupMode(QToolButton.InstantPopup)
 
 #Other toolbar buttons
 start = QAction(QIcon(),"Start", mainWindow)
+>>>>>>> 792c3c64625066ecb051e062ae5b4df85b6b3c16
 toolbar.addAction(start)
 stop  = QAction(QIcon(),"Stop", mainWindow)
 toolbar.addAction(stop)
 plot  = QAction(QIcon(),"Plot", mainWindow)
 toolbar.addAction(plot)
 toolbar.actionTriggered[QAction].connect(display)
+<<<<<<< HEAD
+ECGFigure = Figure()
+PPGFigure = Figure()
+canvas_ECG = FigureCanvas(ECGFigure)
+canvas_PPG = FigureCanvas(PPGFigure)
+#canvas3 = FigureCanvas(figure)
+newQWidget = QWidget()
+plotwindow_ECG = ECGFigure.add_subplot(111)
+plotwindow_PPG = PPGFigure.add_subplot(111)
+canvas_ECG.draw()
+canvas_PPG.draw()
+Nav_Tool_ECG = NavigationToolbar(canvas_ECG, wid)
+Nav_Tool_PPG = NavigationToolbar(canvas_PPG, wid)
+#canvas3.draw()
+#navtool = NavigationToolbar(canvas,newQWidget)
+v_layout.addWidget(canvas_ECG)
+newQWidget.setLayout(v_layout)
+v_layout.addWidget(Nav_Tool_ECG)
+hmainBox.addWidget(newQWidget)
+v_layout.addWidget(canvas_PPG)
+v_layout.addWidget(Nav_Tool_PPG)
+v_layoutRight = QVBoxLayout()
+#v_layoutRight.addWidget(canvas3)
+hmainBox.addLayout(v_layout)
+hmainBox.addLayout(v_layoutRight)
+window.setWindowTitle("Readings")
+wid.setLayout(hmainBox)
+=======
 
 
 
@@ -210,6 +248,7 @@ hmainBox.setContentsMargins(0,0,0,0)
  
 
 
+>>>>>>> 792c3c64625066ecb051e062ae5b4df85b6b3c16
 
 
 mainWindow.show()

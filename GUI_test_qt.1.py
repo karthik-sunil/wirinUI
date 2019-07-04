@@ -9,6 +9,7 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation 
+from functools import partial 
 def start_read():
     print("start reading")
 
@@ -62,6 +63,7 @@ comport.setText("COM")
 menu = QMenu()
 menu.addAction("COM1",)
 menu.addAction("COM3",)
+menu.triggered.connect()
 comport.setMenu(menu)
 comport.setPopupMode(QToolButton.InstantPopup)
 toolbar.addWidget(comport)

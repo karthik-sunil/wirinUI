@@ -12,7 +12,7 @@ import matplotlib.animation as animation
 from functools import partial 
 import threading
 running = False
-currentComPort = 'COM1'
+currentComPort = None
 
 def start_read():
     global running
@@ -166,10 +166,7 @@ toolbar.addAction(plot)
 toolbar.actionTriggered[QAction].connect(display)
 
 
-
-
-
-
+ 
  
 
 leftLayout = QVBoxLayout()
@@ -216,16 +213,49 @@ plotSplitter.addWidget(ppgWindow)
 plotSplitter.setSizes([400,400])
 plotSplitter.setStyleSheet("QSplitter::handle {   background: black;}")
 plotSplitter.setHandleWidth(1)
-rightLayout = QVBoxLayout()
-#v_layoutRight.addWidget(canvas3)
-hmainBox.addLayout(leftLayout)
-hmainBox.addLayout(rightLayout)
+
+leftWidget = QWidget()
+leftWidget.setLayout(leftLayout)
+
+horizontalSplitter = QSplitter(Qt.Horizontal)
+
+rightWidget = QWidget()
+
+rightSubLayout = QVBoxLayout()
+rightWidget.setLayout(rightSubLayout)
+
+title = QLabel()
+gsr = QLabel()
+heart_rate = QLabel()
+title.setText("Readings:")
+gsr.setText("GSR: {}".format(55))
+heart_rate.setText("Heart Rate: {}".format(72))
+title.setAlignment(Qt.AlignCenter)
+gsr.setAlignment(Qt.AlignRight)
+rightSubLayout.addWidget(title)
+rightSubLayout.addWidget(gsr)
+rightSubLayout.addWidget(heart_rate)
+
+horizontalSplitter.addWidget(leftWidget)
+horizontalSplitter.addWidget(rightWidget)
+horizontalSplitter.setSizes([500,200])
+
+horizontalSplitter.setStyleSheet("QSplitter::handle {   background: black;}")
+horizontalSplitter.setHandleWidth(1)
+hmainBox.addWidget(horizontalSplitter)
+
 hmainBox.setSpacing(0)
 hmainBox.setContentsMargins(0,0,0,0)
- 
 
+statusBar = QStatusBar()
+mainWindow.setStatusBar(statusBar)
+label = QLabel()
+if currentComPort == None:
+    label.setText("No COM Port Selected")
+else:
+    label.setText("Com Port : " + currentComPort)
 
-
+statusBar.addPermanentWidget(label)
 
 mainWindow.show()
 sys.exit(app.exec_())

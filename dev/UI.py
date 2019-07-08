@@ -1,172 +1,62 @@
-#added matplotlib 
-import sys
-from PyQt5.QtWidgets import *
-import serial 
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
+import sys
+
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 import matplotlib.pyplot as plt
 import matplotlib.animation as anim 
+
 from functools import partial 
-import threading
-running = False
-currentComPort = 'COM1'
-t1 = threading.Thread(target=start_read, args=()) 
 
 
-def findComPorts(menu):
-    menu = menu
-    menu.clear()
-    #print("Hello")
-    if sys.platform.startswith('win'):
-        ports = ['COM%s' % (i + 1) for i in range(256)]
-    elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
-        # this excludes your current terminal "/dev/tty"
-        ports = glob.glob('/dev/tty[A-Za-z]*')
-    elif sys.platform.startswith('darwin'):
-        ports = glob.glob('/dev/tty.*')
-    else:
-        raise EnvironmentError('Unsupported platform')
-    result = []
-    #print(ports)
-    #print(menu)
-    for port in ports:
-        
-        try:
-            s = serial.Serial(port)
-            s.close()
-            #print(type(port))
-            result.append(port)
-            
-        except (OSError, serial.SerialException):
-            pass
-     
-    
-    #result = ["COM1","COM2"]
-    if len(result) == 0:
-        action = menu.addAction("NO PORTS")
-        action.setEnabled(False)
-    for r in result:
-        r = menu.addAction(r)
-    #menu.triggered.disconnect()
-    #menu.triggered.connect(partial(setComPort, menu))
-
-def setComPort(menu,a):
-    print(a.text())
-    currentComPort = a.text()
-    print(currentComPort)
-    findComPorts(menu)
+from comms import *
+from ecgAnimate import *
+from ppgAnimate import *
+from dataRead import *
 
 def display(a):
     global running
     global t1
     global start
-
     case = a.text()
+    print (case)
+   
     
     if case == "Start":
-        if(currentComPort == None):
+        #start_read()
+        if(comPorts.currentComPort == None):
             QMessageBox.warning(mainWindow, 'Error', "Choose COM Port", QMessageBox.Ok , QMessageBox.Ok)
-        
         else:
-        
             try:
-        
-                s = serial.Serial(currentComPort)
-                s.close()
+                #s = serial.Serial(currentComPort)
+                #s.close()
 
                 start.setEnabled(False) 
                 stop.setEnabled(True)
-        
-        
-                ecgAnimate._start()
-                ppgAnimate._start()
-        
-        
-        
+                eegAnimate._start()
                 t1.start()
                 
-            except (OSError, serial.SerialException):
+            except (OSError, comPorts.serial.SerialException):
                 QMessageBox.warning(mainWindow, 'Error', "COM Port not available \n Choose another one", QMessageBox.Ok , QMessageBox.Ok)
             
             
     elif case == "Stop":
-        
         stop.setEnabled(False)
         start.setEnabled(True)
         running = False
-        stop_read()
+        
+        dataRead.stop_read()
 
     elif case == "Plot":
-        plot_data()
-
-    
-def start_read():
-    global running
-    print("start reading")
-
-    running = True
-    while(running):
-        pass
-        #print(running)
+        dataRead.plot_data()
 
 
-def stop_read():
-    global t1
-    ecgAnimate.event_source.stop()
-    ppgAnimate.event_source.stop()
-    
-    if(t1.isAlive()):
-        t1.join()
-        
-        t1 = threading.Thread(target=start_read, args=()) 
-    
 
-def plot_data():
-    print("plot")
-
-
-def updateGraph():
-    print("Update Graph")
-
-#This function handles top menu bar press
-
-def animateECG(i):
-    print("Inside animate")
-    pullData = open("eegdata.txt","r").read()
-    dataList = pullData.split('\n')
-    xList = []
-    yList = []
-    for eachLine in dataList:
-        if len(eachLine)>1:
-            x,y = eachLine.split(',')
-            xList.append(int(x))
-            yList.append(int(y))
-    ecg.clear()
-    ecg.plot(xList,yList)
-
-
-def animatePPG(i):
-    print("Inside animate")
-    pullData = open("eegdata.txt","r").read()
-    dataList = pullData.split('\n')
-    xList = []
-    yList = []
-    for eachLine in dataList:
-        if len(eachLine)>1:
-            x,y = eachLine.split(',')
-            xList.append(int(x))
-            yList.append(int(y))
-    ppg.clear()
-    ppg.plot(xList,yList)
-
-
-   
 def myExitHandler():
-    stop_read()
-    
+    dataRead.stop_read()
 
 app = QApplication(sys.argv)
 app.aboutToQuit.connect(myExitHandler)
@@ -231,11 +121,6 @@ ECGCanvas.draw()
 PPGCanvas.draw()
 ecgAnimate = anim.FuncAnimation(ECGFigure, animateECG, interval=1000)
 ecgAnimate.event_source.stop()
-
-
-ppgAnimate = anim.FuncAnimation(PPGFigure, animatePPG, interval=1000)
-ppgAnimate.event_source.stop()
-
 
 #canvas3.draw()
 ecgWindow = QWidget()
@@ -310,7 +195,3 @@ else:
     label.setText("Com Port : " + currentComPort)
 
 statusBar.addPermanentWidget(label)
-
-mainWindow.show()
-sys.exit(app.exec_())
-

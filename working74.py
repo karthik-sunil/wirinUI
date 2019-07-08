@@ -1,5 +1,6 @@
 #added matplotlib 
 import sys
+import csvwriter 
 from PyQt5.QtWidgets import *
 import serial 
 from PyQt5.QtGui import *
@@ -10,16 +11,13 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as Navigatio
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation 
 from functools import partial 
+import glob 
 import threading
 running = False
 currentComPort = None
 
 def start_read():
     global running
-
-    
-
-
     print("start reading")
     running = True
     while(running):

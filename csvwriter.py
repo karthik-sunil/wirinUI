@@ -1,23 +1,20 @@
 import csv 
-def filewriter(sentence):
-    name = input("enter filename: ")
-    filename = name + ".csv"
+def filewriter(sentence,filename):
+    #name = input("enter filename: ")
+    filename = filename + ".csv"
     print(filename)
+    print(sentence)
     l = sentence.split(",")
-    writelist = []
-    for i in l:
-        writelist.append([float(i)]) 
-
-    with open(filename, "w", newline="") as f:
+    a = []
+    for i,x in enumerate(l):
+        l[i] = float(l[i])
+        a.append([l[i]])
+    with open(filename, "a", newline="") as f:
         writer = csv.writer(f)
-        writer.writerows(writelist)
+        writer.writerows(a)
     i = 0
-    buffer = l 
+    #revlist = l[::-1]
+    buffer = [] 
     #while i<n:
     #    buffer.append(revlist.pop())
-    return buffer
-
-sentence = input("enter sentence: ")
-#n = int(input("enter length of buffer: "))
-l1 = filewriter(sentence)
-print(l1)
+    return l

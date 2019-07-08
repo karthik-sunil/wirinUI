@@ -11,10 +11,28 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as anim 
 from functools import partial 
 import threading
-running = False
-currentComPort = 'COM1'
-t1 = threading.Thread(target=start_read, args=()) 
+import glob
+from csvwriter import *
 
+running = False
+currentComPort = None
+baudRate = 9600
+
+buffer = []
+
+def start_read():
+    global running
+    global buffer
+    print("start reading")
+    ser = serial.Serial(currentComPort, baudRate)
+    running = True
+    while(running):
+        data = ser.readline()
+        data = data.decode().strip()
+        buffer = filewriter(data,"newFile")
+        print(buffer)
+        
+t1 = threading.Thread(target=start_read, args=()) 
 
 def findComPorts(menu):
     menu = menu
@@ -54,9 +72,11 @@ def findComPorts(menu):
     #menu.triggered.connect(partial(setComPort, menu))
 
 def setComPort(menu,a):
+    global currentComPort
     print(a.text())
     currentComPort = a.text()
     print(currentComPort)
+    label.setText("Com Port : " + currentComPort)
     findComPorts(menu)
 
 def display(a):
@@ -103,21 +123,13 @@ def display(a):
         plot_data()
 
     
-def start_read():
-    global running
-    print("start reading")
-
-    running = True
-    while(running):
-        pass
-        #print(running)
-
 
 def stop_read():
     global t1
+    print("Stop")
     ecgAnimate.event_source.stop()
     ppgAnimate.event_source.stop()
-    
+    #ser.close()
     if(t1.isAlive()):
         t1.join()
         
@@ -134,22 +146,24 @@ def updateGraph():
 #This function handles top menu bar press
 
 def animateECG(i):
-    print("Inside animate")
-    pullData = open("eegdata.txt","r").read()
-    dataList = pullData.split('\n')
-    xList = []
-    yList = []
-    for eachLine in dataList:
+    global buffer
+    #print("Inside animate")
+    #pullData = open("eegdata.txt","r").read()
+    #dataList = pullData.split('\n')
+    xList = [1,2,3,4,5]
+    yList = buffer
+    """ for eachLine in dataList:
         if len(eachLine)>1:
             x,y = eachLine.split(',')
             xList.append(int(x))
-            yList.append(int(y))
+            yList.append(int(y)) """
     ecg.clear()
-    ecg.plot(xList,yList)
+    if(len(yList)):
+        ecg.plot(xList,yList)
 
 
 def animatePPG(i):
-    print("Inside animate")
+    #print("Inside animate")
     pullData = open("eegdata.txt","r").read()
     dataList = pullData.split('\n')
     xList = []

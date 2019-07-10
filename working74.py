@@ -1,4 +1,3 @@
-#added matplotlib 
 import sys
 import csvwriter 
 from PyQt5.QtWidgets import *
@@ -15,31 +14,43 @@ import glob
 import threading
 import glob
 from csvwriter import *
-
+import datetime
+import pyOpenBCI
+buttonAction = "None"
+def annotator(button):
+    global buttonAction
+    if button.isChecked():
+        buttonAction = button.text()
 running = False
 currentComPort = None
 baudRate = 9600
-
+graphInterval = 10
 buffer = []
 
 def start_read():
     global running
-<<<<<<< HEAD
-=======
     global buffer
->>>>>>> 764aa4be9f395569e04cbb0dd61eb5b9adcc348b
+    global buttonAction
     print("start reading")
     ser = serial.Serial(currentComPort, baudRate)
     running = True
     while(running):
         data = ser.readline()
         data = data.decode().strip()
-        buffer = filewriter(data,"newFile")
+        systime = datetime.datetime.now().isoformat()
+        inp = filewriter(data,"newFile",buttonAction,systime)
+        print("inp is")
+        print(inp)
+        n = len(inp)
+        if len(buffer) > n:
+            buffer = buffer[n:]
+        buffer = buffer + inp
         print(buffer)
         
 t1 = threading.Thread(target=start_read, args=()) 
 
 def findComPorts(menu):
+    print("COM port detected")
     menu = menu
     menu.clear()
     #print("Hello")
@@ -155,8 +166,9 @@ def animateECG(i):
     #print("Inside animate")
     #pullData = open("eegdata.txt","r").read()
     #dataList = pullData.split('\n')
-    xList = [1,2,3,4,5]
+    
     yList = buffer
+    xList = [i for i in range(len(yList))]
     """ for eachLine in dataList:
         if len(eachLine)>1:
             x,y = eachLine.split(',')
@@ -169,18 +181,18 @@ def animateECG(i):
 
 def animatePPG(i):
     #print("Inside animate")
-    pullData = open("eegdata.txt","r").read()
-    dataList = pullData.split('\n')
-    xList = []
-    yList = []
-    for eachLine in dataList:
-        if len(eachLine)>1:
-            x,y = eachLine.split(',')
-            xList.append(int(x))
-            yList.append(int(y))
-    ppg.clear()
-    ppg.plot(xList,yList)
-
+    # pullData = open("eegdata.txt","r").read()
+    # dataList = pullData.split('\n')
+    # xList = []
+    # yList = []
+    # for eachLine in dataList:
+    #     if len(eachLine)>1:
+    #         x,y = eachLine.split(',')
+    #         xList.append(int(x))
+    #         yList.append(int(y))
+    # ppg.clear()
+    # ppg.plot(xList,yList)
+    pass
 
    
 def myExitHandler():
@@ -248,11 +260,11 @@ ppg = PPGFigure.add_subplot(111)
 ppg.set_title("PPG")
 ECGCanvas.draw()
 PPGCanvas.draw()
-ecgAnimate = anim.FuncAnimation(ECGFigure, animateECG, interval=1000)
+ecgAnimate = anim.FuncAnimation(ECGFigure, animateECG, interval=graphInterval)
 ecgAnimate.event_source.stop()
 
 
-ppgAnimate = anim.FuncAnimation(PPGFigure, animatePPG, interval=1000)
+ppgAnimate = anim.FuncAnimation(PPGFigure, animatePPG, interval=graphInterval)
 ppgAnimate.event_source.stop()
 
 
@@ -297,6 +309,19 @@ rightWidget = QWidget()
 rightSubLayout = QVBoxLayout()
 rightWidget.setLayout(rightSubLayout)
 
+btn1 = QRadioButton("Heavy Traffic", rightWidget)
+btn2 = QRadioButton("Moderate Traffic", rightWidget)
+btn3 = QRadioButton("Sparse Traffic", rightWidget)
+#btn4 = QRadioButton("something", rightWidget)
+#btn5 = QRadioButton("something else", rightWidget)
+btns = [btn1,btn2,btn3]
+x = []
+for btn in btns:
+    rightSubLayout.addWidget(btn)
+
+btn1.toggled.connect(lambda:annotator(btn1))
+btn2.toggled.connect(lambda:annotator(btn2))
+btn3.toggled.connect(lambda:annotator(btn3))    
 title = QLabel()
 gsr = QLabel()
 heart_rate = QLabel()

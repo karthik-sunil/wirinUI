@@ -4,10 +4,10 @@ import numpy as np
 import math
 from scipy import signal
 
-dataset = pd.read_csv(r"D:\Aniruddh\Nerdy Stuff\WIRIN\Datasets\Data_CSV\data_1.csv", header = None)
+dataset = pd.read_csv(r"Downloads/wirin/wirinUI/wirinUI/data_1.csv", header = None)
 ppg = dataset[0]
 
-# First, design the Buterworth filter
+# First, design the Butterworth filter
 N  = 4    # Filter order
 Wn = 0.1  # Cutoff frequency
 B, A = signal.butter(N, Wn, output='ba')

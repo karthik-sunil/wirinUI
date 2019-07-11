@@ -260,19 +260,11 @@ ppg = PPGFigure.add_subplot(111)
 ppg.set_title("PPG")
 ECGCanvas.draw()
 PPGCanvas.draw()
-<<<<<<< HEAD
 ecgAnimate = anim.FuncAnimation(ECGFigure, animateECG, interval=graphInterval)
 ecgAnimate.event_source.stop()
 
 
 ppgAnimate = anim.FuncAnimation(PPGFigure, animatePPG, interval=graphInterval)
-=======
-ecgAnimate = anim.FuncAnimation(ECGFigure, animateECG, interval=500)
-ecgAnimate.event_source.stop()
-
-
-ppgAnimate = anim.FuncAnimation(PPGFigure, animatePPG, interval=500)
->>>>>>> 1b70c6894dfa9017bfdcb1ca5d76fe3e2d2cc30e
 ppgAnimate.event_source.stop()
 
 

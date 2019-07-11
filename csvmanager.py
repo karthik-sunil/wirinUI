@@ -22,7 +22,7 @@ def ECGFeed():
             ECG = []
             time.sleep(1)
     f1.close() 
-def HRFeed():
+def PPGFeed():
     count2 = 0
     global Heart
     while count2 < len(l1):

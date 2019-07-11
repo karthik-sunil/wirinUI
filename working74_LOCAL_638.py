@@ -265,11 +265,10 @@ resp = RespFigure.add_subplot(111)
 resp.set_title("Respiration")
 ECGCanvas.draw()
 PPGCanvas.draw()
-ecgAnimate = anim.FuncAnimation(ECGFigure, animateECG, interval=graphInterval)
+RespCanvas.draw()
+ecgAnimate = anim.FuncAnimation(ECGFigure, animateECG, interval=500)
 ecgAnimate.event_source.stop()
-
-
-ppgAnimate = anim.FuncAnimation(PPGFigure, animatePPG, interval=graphInterval)
+ppgAnimate = anim.FuncAnimation(PPGFigure, animatePPG, interval=500)
 ppgAnimate.event_source.stop()
 respAnimate = anim.FuncAnimation(RespFigure,animateResp, interval=500)
 

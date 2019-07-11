@@ -119,7 +119,7 @@ def display(a):
         
                 ecgAnimate._start()
                 ppgAnimate._start()
-        
+                respAnimate._start()       
         
         
                 t1.start()
@@ -194,7 +194,9 @@ def animatePPG(i):
     # ppg.plot(xList,yList)
     pass
 
-   
+def animateResp(i):
+    pass
+    
 def myExitHandler():
     stop_read()
     
@@ -251,30 +253,24 @@ leftLayout.setContentsMargins(0,0,0,0)
 leftLayout.setSpacing(0)
 ECGFigure = Figure()
 PPGFigure = Figure()
+RespFigure = Figure()
 ECGCanvas = FigureCanvas(ECGFigure)
 PPGCanvas = FigureCanvas(PPGFigure)
-
+RespCanvas = FigureCanvas(RespFigure)
 ecg = ECGFigure.add_subplot(111)
 ecg.set_title("ECG")
 ppg = PPGFigure.add_subplot(111)
 ppg.set_title("PPG")
+resp = RespFigure.add_subplot(111)
+resp.set_title("Respiration")
 ECGCanvas.draw()
 PPGCanvas.draw()
-<<<<<<< HEAD
-ecgAnimate = anim.FuncAnimation(ECGFigure, animateECG, interval=graphInterval)
-ecgAnimate.event_source.stop()
-
-
-ppgAnimate = anim.FuncAnimation(PPGFigure, animatePPG, interval=graphInterval)
-=======
+RespCanvas.draw()
 ecgAnimate = anim.FuncAnimation(ECGFigure, animateECG, interval=500)
 ecgAnimate.event_source.stop()
-
-
 ppgAnimate = anim.FuncAnimation(PPGFigure, animatePPG, interval=500)
->>>>>>> 1b70c6894dfa9017bfdcb1ca5d76fe3e2d2cc30e
 ppgAnimate.event_source.stop()
-
+respAnimate = anim.FuncAnimation(RespFigure,animateResp, interval=500)
 
 #canvas3.draw()
 ecgWindow = QWidget()
@@ -291,19 +287,26 @@ ppgLayout.setContentsMargins(0,0,0,0)
 ppgLayout.setSpacing(0)
 ppgWindow.setLayout(ppgLayout)
 
+respWindow = QWidget()
+respLayout = QVBoxLayout() 
+respLayout.setContentsMargins(0,0,0,0)
+respLayout.setSpacing(0)
+respWindow.setLayout(respLayout)
 ecgToolbar = NavigationToolbar(ECGCanvas,wid)
 ppgToolbar = NavigationToolbar(PPGCanvas,wid)
-
+respToolbar = NavigationToolbar(RespCanvas,wid)
 plotSplitter = QSplitter(Qt.Vertical)
 ecgLayout.addWidget(ECGCanvas)
 ecgLayout.addWidget(ecgToolbar)
-
 leftLayout.addWidget(plotSplitter)
 ppgLayout.addWidget(PPGCanvas)
 ppgLayout.addWidget(ppgToolbar)
+respLayout.addWidget(RespCanvas)
+respLayout.addWidget(respToolbar)
 plotSplitter.addWidget(ecgWindow)
 plotSplitter.addWidget(ppgWindow)
-plotSplitter.setSizes([400,400])
+plotSplitter.addWidget(respWindow)
+plotSplitter.setSizes([400,400,400])
 plotSplitter.setStyleSheet("QSplitter::handle {   background: black;}")
 plotSplitter.setHandleWidth(1)
 
@@ -330,17 +333,16 @@ for btn in btns:
 btn1.toggled.connect(lambda:annotator(btn1))
 btn2.toggled.connect(lambda:annotator(btn2))
 btn3.toggled.connect(lambda:annotator(btn3))    
-title = QLabel()
-gsr = QLabel()
-heart_rate = QLabel()
-title.setText("Readings:")
-gsr.setText("GSR: {}".format(55))
-heart_rate.setText("Heart Rate: {}".format(72))
-title.setAlignment(Qt.AlignCenter)
-gsr.setAlignment(Qt.AlignRight)
-rightSubLayout.addWidget(title)
-rightSubLayout.addWidget(gsr)
-rightSubLayout.addWidget(heart_rate)
+#title = QLabel()
+readings = QLabel()
+#heart_rate = QLabel()
+readings.setText("Readings:\nGSR: {}\nHeart Rate: {}".format(55,72))
+#heart_rate.setText("Heart Rate: {}".format(72))
+#title.setAlignment(Qt.AlignCenter)
+readings.setAlignment(Qt.AlignLeft)
+#rightSubLayout.addWidget(title)
+rightSubLayout.addWidget(readings)
+#rightSubLayout.addWidget(heart_rate)
 
 horizontalSplitter.addWidget(leftWidget)
 horizontalSplitter.addWidget(rightWidget)

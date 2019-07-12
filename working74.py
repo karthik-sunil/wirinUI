@@ -1,4 +1,5 @@
 import sys
+import PPG_Modules
 import csvwriter 
 from PyQt5.QtWidgets import *
 import serial 
@@ -16,6 +17,8 @@ import glob
 from csvwriter import *
 import datetime
 import pyOpenBCI
+from PPG import master_ppg
+
 buttonAction = "None"
 def annotator(button):
     global buttonAction
@@ -26,6 +29,7 @@ currentComPort = None
 baudRate = 9600
 graphInterval = 10
 buffer = []
+heart_rate = 0 
 
 def start_read():
     global running
@@ -45,7 +49,7 @@ def start_read():
         if len(buffer) > n:
             buffer = buffer[n:]
         buffer = buffer + inp
-        print(buffer)
+        heart_rate = master_ppg(buffer)
         
 t1 = threading.Thread(target=start_read, args=()) 
 
@@ -337,7 +341,7 @@ btn3.toggled.connect(lambda:annotator(btn3))
 #title = QLabel()
 readings = QLabel()
 #heart_rate = QLabel()
-readings.setText("Readings:\nGSR: {}\nHeart Rate: {}".format(55,72))
+readings.setText("Readings:\nGSR: {}\nHeart Rate: {} bps".format(55,heart_rate))
 #heart_rate.setText("Heart Rate: {}".format(72))
 #title.setAlignment(Qt.AlignCenter)
 readings.setAlignment(Qt.AlignLeft)

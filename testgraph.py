@@ -14,12 +14,25 @@ import glob
 import threading
 import wirinECGx
 import pandas as pd
+import numpy as np
+import random
+import time
+
+
+from pyqtgraph.Qt import QtGui, QtCore
+import pyqtgraph as pg
+import pyqtgraph.widgets.RemoteGraphicsView
 
 from csvwriter import *
 import datetime
 import pyOpenBCI
 from multiprocessing import Process, Queue
 from pyOpenBCI import OpenBCICyton
+
+titleFont = QtGui.QFont("Times", 14, QtGui.QFont.Bold) 
+textFont = QtGui.QFont("Times", 12)
+
+
 openBCIStream = []
 
 buttonAction = "None"
@@ -31,6 +44,10 @@ currentComPort = None
 baudRate = 9600
 graphInterval = 10
 buffer = []
+ecgBuffer = []
+ecgBufy = []
+ecgBufx = []
+    
 data = []
 ix = 0
 
@@ -66,7 +83,6 @@ def print_raw(sample):
 
 
 
-
    
 
 
@@ -75,43 +91,59 @@ def start_read():
     global buffer
     global buttonAction
     global board 
-    #print("start reading")
+    global ecgBuffer
+    global ecgBufx
+    global ecgBufy
     ser = serial.Serial(currentComPort, baudRate)
     running = True
+    
+    result = pd.read_csv(r"E:\\Coding\\Wirin\\wirinUI\\data_1.csv", header=None)
+    
+    count = 0
+
     try:
         board = OpenBCICyton(port=None, daisy=False)
     except:
         print("Couldnt find OpenBCI")
 
-    
+    '''
     if(running):
         boardThread = threading.Thread(target=board.start_stream, args=(print_raw,))
         boardThread.daemon = True
         boardThread.start()
-
+    '''
+    
     while(running):
-
+        '''
         data = ser.readline()
         data = data.decode().strip()
+        '''
+        #data = ",".join(map(str,l1[count]))
+        ecgBufy.append(result[1][count]) 
+        ecgBufx.append(count)
+        count += 1
+        #print(count)
         systime = datetime.datetime.now().isoformat()
         #data = data + c 
-        inp = filewriter(data,"newFile",buttonAction,systime)
-        #print("inp is")
-        #print(inp)
-        n = len(inp)
-        if len(buffer) > n:
-            buffer = buffer[n:]
-        buffer = buffer + inp
-        #print(buffer)
+        #inp = filewriter(data,"newFile",buttonAction,systime)
+        
+
+        
+        ecgBufy = ecgBufy[-4000:]
+        ecgBufx = ecgBufx[-4000:]
+         
+        if(count % 4000 == 0):
+            ecgBuffer = wirinECGx.f(ecgBufx, ecgBufy, 500.0)
+            #print(ecgBuffer)
+      
     
 
 t1 = threading.Thread(target=start_read, args=()) 
-
+t1.daemon = True
 def findComPorts(menu):
     print("COM port detected")
     menu = menu
     menu.clear()
-    #print("Hello")
     if sys.platform.startswith('win'):
         ports = ['COM%s' % (i + 1) for i in range(256)]
     elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
@@ -122,34 +154,29 @@ def findComPorts(menu):
     else:
         raise EnvironmentError('Unsupported platform')
     result = []
-    #print(ports)
-    #print(menu)
     for port in ports:
         
         try:
             s = serial.Serial(port)
             s.close()
-            #print(type(port))
             result.append(port)
             
         except (OSError, serial.SerialException):
             pass
+    
      
     
-    #result = ["COM1","COM2"]
     if len(result) == 0:
         action = menu.addAction("NO PORTS")
         action.setEnabled(False)
     for r in result:
         r = menu.addAction(r)
-    #menu.triggered.disconnect()
-    #menu.triggered.connect(partial(setComPort, menu))
+  
+  
 
 def setComPort(menu,a):
     global currentComPort
-    #print(a.text())
     currentComPort = a.text()
-    #print(currentComPort)
     label.setText("Com Port : " + currentComPort)
     findComPorts(menu)
 
@@ -176,9 +203,7 @@ def display(a):
                 stop.setEnabled(True)
         
         
-                ecgAnimate._start()
-                ppgAnimate._start()
-        
+              
         
         
                 t1.start()
@@ -191,7 +216,7 @@ def display(a):
         
         stop.setEnabled(False)
         start.setEnabled(True)
-        running = False
+        
         stop_read()
 
     elif case == "Plot":
@@ -204,17 +229,18 @@ def display(a):
 def stop_read():
     global t1
     global board
-    print("Stop")
+    global running
+    running = False
     if(board != None):
         board.stop_stream()
-    ecgAnimate.event_source.stop()
-    ppgAnimate.event_source.stop()
+    print("Stop")
     #ser.close()
     if(t1.isAlive()):
+        print("Stop")
         t1.join()
         
         t1 = threading.Thread(target=start_read, args=()) 
-    
+    print("Stop")
 
 def plot_data():
     print("plot")
@@ -225,7 +251,7 @@ def updateGraph():
 
 #This function handles top menu bar press
 
-def animateECG(i):
+""" def animateECG(i):
     global buffer
     #print("Inside animate")
     #pullData = open("eegdata.txt","r").read()
@@ -233,18 +259,18 @@ def animateECG(i):
     
     x = (pd.read_csv(r"data_1.csv",header=None)[1][:4000]).tolist()
     m = wirinECGx.f(data,500.0)
-    """ for eachLine in dataList:
+     for eachLine in dataList:
         if len(eachLine)>1:
             x,y = eachLine.split(',')
             xList.append(int(x))
-            yList.append(int(y)) """
+            yList.append(int(y)) 
     ecg.clear()
     if(len(m[2])):
-        ecg.plot(m[1],m[2])
+        ecg.plot(m[1],m[2]) """
 
 
 def animatePPG(i):
-    #print("Inside animate")
+    #print("Inside animate")fwiri
     # pullData = open("eegdata.txt","r").read()
     # dataList = pullData.split('\n')
     # xList = []
@@ -306,24 +332,65 @@ def startBciProcess():
     p.start()
     
 
+def update():
+    global ecgBuffer
+    global q
+    global heartRate
+    q.put(random.randint(1,5))
+     
+    
+    try:
+      #print(ecgBuffer[4])
+      ecgPlot.clear()
+      heartRate.setText("Heart Rate: {}".format(ecgBuffer[0]))
+      ecgPlot.plot(ecgBuffer[2],ecgBuffer[3] ,pen=None, symbol='o')
+      ecgPlot.plot(ecgBuffer[5])
+
+    except:
+        pass
+
+
+
+
 def bciPlotFunc(q):
-    global BCIplt
-    global bciSub
-    a = q.get()
-    #print("In bciPlotFunc")
-    #print(a)
-    ani = anim.FuncAnimation(BCIplt, partial(animateBCI,q), interval=1000)
-    plt.show()
+    app2 = QtGui.QApplication([])
+    
+    win2 = pg.GraphicsWindow(title="Basic plotting examples")
+    win2.resize(1000,600)
+    win2.setWindowTitle('Open BCI plot')
+    p2 = win2.addPlot(title="OpenBCI Feed")
+    curve = p2.plot(pen='y',)
+
+    def updateInProc(curve):
+        updateInProc.y.append(q.get())
+        updateInProc.x.append(updateInProc.i)
+        updateInProc.i += 1
+        updateInProc.y = updateInProc.y[-100:]
+        updateInProc.x = updateInProc.x[-100:]
+
+        curve.setData(updateInProc.x,updateInProc.y)
+        
+    
+    
+    updateInProc.i = 0
+    updateInProc.y = []
+    updateInProc.x = []
+    timer = QtCore.QTimer()
+    timer.timeout.connect(lambda: updateInProc(curve))
+    timer.start(50)
+
+    QtGui.QApplication.instance().exec_()
 
 def myExitHandler():
-    stop_read()
     board.disconnect()
+    stop_read()
+    
     
 if __name__ == '__main__':    
     app = QApplication(sys.argv)
     app.aboutToQuit.connect(myExitHandler)
     mainWindow = QMainWindow()
-    mainWindow.setGeometry(50, 50, 500, 500)
+    mainWindow.setGeometry(50, 50, 1200, 800)
     mainWindow.setWindowTitle("Readings")
 
     wid = QWidget()
@@ -366,100 +433,99 @@ if __name__ == '__main__':
     toolbar.actionTriggered[QAction].connect(display)
     
     
-
+    #Create the left layout
     leftLayout = QVBoxLayout()
     leftLayout.setContentsMargins(0,0,0,0)
     leftLayout.setSpacing(0)
-    ECGFigure = Figure()
-    PPGFigure = Figure()
-    ECGCanvas = FigureCanvas(ECGFigure)
-    PPGCanvas = FigureCanvas(PPGFigure)
-
-    
-
-    ecg = ECGFigure.add_subplot(111)
-    ecg.set_title("ECG")
-    ppg = PPGFigure.add_subplot(111)
-    ppg.set_title("PPG")
-    ECGCanvas.draw()
-    PPGCanvas.draw()
-    ecgAnimate = anim.FuncAnimation(ECGFigure, animateECG, interval=graphInterval)
-    ecgAnimate.event_source.stop()
-
-
-    ppgAnimate = anim.FuncAnimation(PPGFigure, animatePPG, interval=graphInterval)
-    ppgAnimate.event_source.stop()
-
-
-    #canvas3.draw()
-    ecgWindow = QWidget()
-    ecgWindow.setContentsMargins(0,0,0,0)
-
-    ecgWindow.setAutoFillBackground(True)
-    ecgLayout = QVBoxLayout()
-    ecgLayout.setContentsMargins(0,0,0,0)
-    ecgLayout.setSpacing(0)
-    ecgWindow.setLayout(ecgLayout)
-    ppgWindow = QWidget()
-    ppgLayout = QVBoxLayout()
-    ppgLayout.setContentsMargins(0,0,0,0)
-    ppgLayout.setSpacing(0)
-    ppgWindow.setLayout(ppgLayout)
-
-    ecgToolbar = NavigationToolbar(ECGCanvas,wid)
-    ppgToolbar = NavigationToolbar(PPGCanvas,wid)
-
     plotSplitter = QSplitter(Qt.Vertical)
-    ecgLayout.addWidget(ECGCanvas)
-    ecgLayout.addWidget(ecgToolbar)
-
+    plotSplitter.setSizes([400,400,400])
+    plotSplitter.setStyleSheet("QSplitter::handle { background: black; }")
+    plotSplitter.setHandleWidth(2)
     leftLayout.addWidget(plotSplitter)
-    ppgLayout.addWidget(PPGCanvas)
-    ppgLayout.addWidget(ppgToolbar)
-    plotSplitter.addWidget(ecgWindow)
-    plotSplitter.addWidget(ppgWindow)
-    plotSplitter.setSizes([400,400])
-    plotSplitter.setStyleSheet("QSplitter::handle {   background: black;}")
-    plotSplitter.setHandleWidth(1)
-
     leftWidget = QWidget()
     leftWidget.setLayout(leftLayout)
 
+    
+    #Set chart configurations
+    pg.setConfigOptions(antialias=False)
+    pg.setConfigOption('background', 'w')
+    pg.setConfigOption('foreground', 'k')
+    
+    #ECG Chart
+    ecgPlot = pg.PlotWidget(title="ECG")
+    ecgPlot.enableAutoRange(enable=True)
+    plotSplitter.addWidget(ecgPlot)
+
+    #PPG Chart
+    ppgPlot = pg.PlotWidget(title="PPG")
+    plotSplitter.addWidget(ppgPlot)
+    
+    #GSR Chart    
+    gsrPlot = pg.PlotWidget(title="GSR")
+    plotSplitter.addWidget(gsrPlot)
+
+   
+
+    
+    
     horizontalSplitter = QSplitter(Qt.Horizontal)
 
+    #
     rightWidget = QWidget()
 
-    rightSubLayout = QVBoxLayout()
-    rightWidget.setLayout(rightSubLayout)
+    rightLayout = QVBoxLayout()
+    rightWidget.setLayout(rightLayout)
 
+    annotate = QFormLayout()
+    annotLabel = QLabel("Annotate")
+    
+    annotLabel.setFont(titleFont)
+    annotate.addWidget(annotLabel)
+    
     btn1 = QRadioButton("Heavy Traffic", rightWidget)
+    
     btn2 = QRadioButton("Moderate Traffic", rightWidget)
     btn3 = QRadioButton("Sparse Traffic", rightWidget)
     #btn4 = QRadioButton("something", rightWidget)
     #btn5 = QRadioButton("something else", rightWidget)
+    
     btns = [btn1,btn2,btn3]
-    x = []
+    
+    
     for btn in btns:
-        rightSubLayout.addWidget(btn)
+        btn.setFont(textFont)
+        annotate.addWidget(btn)
+
+    rightLayout.addLayout(annotate)
 
     btn1.toggled.connect(lambda:annotator(btn1))
     btn2.toggled.connect(lambda:annotator(btn2))
     btn3.toggled.connect(lambda:annotator(btn3))    
-    title = QLabel()
-    gsr = QLabel()
-    heart_rate = QLabel()
-    title.setText("Readings:")
-    gsr.setText("GSR: {}".format(55))
-    heart_rate.setText("Heart Rate: {}".format(72))
+    
+    title = QLabel("Readings:")
+    title.setFont(titleFont)
     title.setAlignment(Qt.AlignCenter)
-    gsr.setAlignment(Qt.AlignRight)
-    rightSubLayout.addWidget(title)
-    rightSubLayout.addWidget(gsr)
-    rightSubLayout.addWidget(heart_rate)
-
+    
+    rightForm = QFormLayout()
+    rightLayout.addLayout(rightForm)
+    
+    rightForm.addWidget(title)
+    gsr = QLabel()
+    gsr.setText("GSR: {}".format(55))
+    gsr.setAlignment(Qt.AlignCenter)
+    rightForm.addWidget(gsr)
+    
+    heartRate = QLabel()
+    heartRate.setText("Heart Rate: __")
+    heartRate.setAlignment(Qt.AlignCenter)
+    rightForm.addWidget(heartRate)
+    
     horizontalSplitter.addWidget(leftWidget)
     horizontalSplitter.addWidget(rightWidget)
     horizontalSplitter.setSizes([500,200])
+    
+    
+
 
     horizontalSplitter.setStyleSheet("QSplitter::handle {   background: black;}")
     horizontalSplitter.setHandleWidth(1)
@@ -477,6 +543,14 @@ if __name__ == '__main__':
         label.setText("Com Port : " + currentComPort)
 
     statusBar.addPermanentWidget(label)
+
+
+    timer1 = QTimer()
+    timer1.timeout.connect(update)
+    timer1.start(300)
+    menu.aboutToShow.connect(partial(findComPorts,menu))
+    
+
 
     mainWindow.show()
 

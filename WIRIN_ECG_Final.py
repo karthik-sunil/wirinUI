@@ -5,8 +5,7 @@ from scipy import signal
 import numpy as np
 import biosppy
 
-
-x = pd.read_csv(r"data_1.csv",header=None)
+x = pd.read_csv(r"D:\Aniruddh\Nerdy Stuff\WIRIN\Datasets\Data_CSV\data_1.csv",header=None)
 ecg = x[1]
 fqs = 500  # Sample frequency (Hz)
 f0 = 50.0  # Frequency to be removed from signal (Hz)
@@ -15,11 +14,11 @@ len_frames = 6
 
 #Wait for the first len_frames+2 seconds because peaks in the first and last frames are not detected accurately
 data = []
-
 #Append all the elements into 'data'
 for pos in range(len_frames+2): 
     data = data + list(ecg[pos*fqs: (pos+1)*fqs])
-print(data[0],data[-1])
+
+
 #Detect R Peaks
 r_peaks = biosppy.signals.ecg.ecg(signal=data, sampling_rate=500.0, show = False)
 x_peaks = r_peaks[2]
@@ -44,10 +43,10 @@ plt.scatter(x_peaks, y_peaks, color = 'red')
 plt.xlim(fqs,fqs*(len_frames+1))
 plt.show()
 
-""" 
+
 j = 0                   
 loop_num = 5
-input()
+
 while(j < loop_num):
     for k in range(fqs*(len_frames+1)):
         data[k] = data[k+fqs]
@@ -76,6 +75,3 @@ while(j < loop_num):
     plt.show()
     
     j = j + 1
-
-
- """

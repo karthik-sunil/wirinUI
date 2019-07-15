@@ -17,6 +17,12 @@ import pandas as pd
 import numpy as np
 import random
 import time
+import random
+import pygame
+import time
+import csv
+import datetime
+
 
 
 from pyqtgraph.Qt import QtGui, QtCore
@@ -74,11 +80,16 @@ def annotator(button):
         buttonAction = button.text()
 
 def print_raw(sample):
+    import csvwriter
     global openBCIStream
+    global buttonAction
     openBCIStream =  (sample.channels_data)
     #print("From print_Raw: ", end= "")
     #print(openBCIStream)
-    
+    systime = datetime.datetime.now().isoformat()
+   
+    inp = csvwriter.filewriterBCI(openBCIStream,"newFile2",buttonAction,systime)
+        
     q.put(openBCIStream)
 
 
@@ -106,12 +117,12 @@ def start_read():
     except:
         print("Couldnt find OpenBCI")
 
-    '''
-    if(running):
+    
+    if(running and board):
         boardThread = threading.Thread(target=board.start_stream, args=(print_raw,))
         boardThread.daemon = True
         boardThread.start()
-    '''
+    
     
     while(running):
         '''
@@ -137,8 +148,197 @@ def start_read():
             #print(ecgBuffer)
       
     
+def oddball():
+    global running
+    pygame.init()
+    win = pygame.display.set_mode((500, 500))
+    precision = 50 # Dynamic variable
+    beat_sl_no = 0
+    path = "E:\\Coding\\Wirin\\wirinUI\\tones\\"
+    with open("E:\\Coding\\Wirin\\wirinUI\\write.csv", 'w+', newline = '') as writeFile:
+        print(writeFile)
+        writer = csv.writer(writeFile, delimiter = ',')
+        row = []
+        row.append("Experiment: Odd Ball Expt")
+        writer.writerow(row)
+        row = []
+        row.append("Normal sound: 500 Hz")
+        writer.writerow(row)
+        row = []
+        row.append("Odd sound: 1000 Hz")
+        writer.writerow(row)
+        row = []
+        row.append("Marker for normal sound: 5")
+        writer.writerow(row)
+        row = []
+        row.append("Marker for odd sound: 7")
+        writer.writerow(row)
+        row = []
+        row.append("Marker for correct click: 1")
+        writer.writerow(row)
+        row = []
+        row.append("Marker for incorrect click: 0")
+        writer.writerow(row)
+
+        row = []
+        row.append(" ")
+        writer.writerow(row)
+        
+        #Table 
+        row = []
+        row.append("Sound")
+        row.append("Response")
+        row.append("Result")
+        writer.writerow(row)
+        
+        row = []
+        row.append("5")
+        row.append("CLick")
+        row.append("0")
+        writer.writerow(row)
+        
+        row = []
+        row.append("5")
+        row.append("No CLick")
+        row.append("1")
+        writer.writerow(row)
+        
+        row = []
+        row.append("7")
+        row.append("CLick")
+        row.append("1")
+        writer.writerow(row)
+        
+        row = []
+        row.append("7")
+        row.append("No CLick")
+        row.append("0")
+        writer.writerow(row)
+        
+        
+        row = []
+        row.append(" ")
+        writer.writerow(row)
+        
+        row = []        #Get column headers
+        row.append("Sl No")
+        row.append("Sound Present Time")
+        row.append("Beat Type")
+        row.append("Response Type")
+        row.append("Key Press Time")
+        row.append("Response Time")
+        
+        writer.writerow(row)
+        
+        while(1 and running):
+            
+            beat_sl_no += 1
+            row = []
+            
+            print('Delay 1 Start 2000')
+            pygame.time.delay(2000)
+            diff_4 = random.randint(1, precision) # Difference after 4 seconds
+        
+            beep_time = (int(2000*diff_4/precision))
+            print('Delay 2 Start', beep_time)
+            pygame.time.delay(beep_time)
+            choose_sound = (random.randint(1, 10) <= 5)   # Generate 80% probability
+            
+            if(choose_sound == False):
+                
+                # "Odd Ball"
+                beat_type = 7 
+                pygame.mixer.music.load(path+r"500hz.wav")
+                pygame.mixer.music.play(0)        
+                sound_present_time = datetime.datetime.now().time()
+                
+                # Store the time at which the beat occurs            
+                start = time.time() 
+                flag = True
+                break_flag = False
+                while(1):
+                    pygame.event.get()
+                    mouse_status = (pygame.mouse.get_pressed())    # Check if LMB has been clicked
+        
+                    if(time.time() - start >= 2):   #  If the driver doesn't click a mouse button in 2 seconds
+                        sound_response_time = datetime.datetime.now().time()
+                        response_time = 2   
+                        response_type = 0 # "Incorrect"
+                        break
+                    
+                    if(mouse_status[0] == 1):             # If the driver clicks a mouse button, a correct repsonse has to be registered
+                        response_time = time.time() - start
+                        sound_response_time = datetime.datetime.now().time()
+                        response_type = 1 # "Correct"
+                        print("Correct")
+                        flag = False
+                        break
+                    
+                    if(mouse_status[2] == 1):   # Exit
+                        break_flag = True
+                        break
+                    
+                if(break_flag == True):
+                    break
+                    
+                if(flag == True):
+                    print("Missed the beep")
+                    
+            else:
+                beat_type = 5 #"Normal"
+                pygame.mixer.music.load(path+r"1000hz.wav")
+                pygame.mixer.music.play(0)        
+                start = time.time()
+                sound_present_time = datetime.datetime.now().isoformat()
+                break_flag = False
+                
+                while(1):
+                    
+                    pygame.event.get()
+                    mouse_status = (pygame.mouse.get_pressed())    
+                
+                    if(time.time() - start >= 2):
+                        sound_response_time = datetime.datetime.now().isoformat()
+                        response_time = 2
+                        response_type = 1 # "Correct"
+                        break
+                    
+                    if(mouse_status[0] == 1):   # If the driver clicks a mouse button, an incorrect repsonse has to be registered
+                        response_time = time.time() - start
+                        sound_response_time = datetime.datetime.now().isoformat()
+                        response_type = 0 # "Incorrect"
+                        print("Incorrect")
+                        break
+                    
+                    if(mouse_status[2] == 1):   #Exit Wondow
+                        break_flag = True
+                        break
+                    
+                if(break_flag == True):
+                    break
+            #a = time.time()
+            time1 = []
+            
+            
+            row.append(beat_sl_no)
+            row.append(sound_present_time)
+            row.append(beat_type)
+            row.append(response_type)
+            row.append(sound_response_time)
+            row.append(response_time)
+            print(row)
+            writer.writerow(row)
+        
+        pygame.quit()    
+
+
 
 t1 = threading.Thread(target=start_read, args=()) 
+t2 = threading.Thread(target=oddball,args=())
+t2.daemon = True
+
+
+
 t1.daemon = True
 def findComPorts(menu):
     print("COM port detected")
@@ -207,6 +407,7 @@ def display(a):
         
         
                 t1.start()
+                t2.start()
                 
             except (OSError, serial.SerialException):
                 QMessageBox.warning(mainWindow, 'Error', "COM Port not available \n Choose another one", QMessageBox.Ok , QMessageBox.Ok)
@@ -238,8 +439,11 @@ def stop_read():
     if(t1.isAlive()):
         print("Stop")
         t1.join()
-        
         t1 = threading.Thread(target=start_read, args=()) 
+    if(t2.isAlive()):
+        t2.join()
+        t2 = threading.Thread(target=oddball, args=()) 
+    
     print("Stop")
 
 def plot_data():
@@ -336,7 +540,7 @@ def update():
     global ecgBuffer
     global q
     global heartRate
-    q.put(random.randint(1,5))
+    #q.put(random.randint(1,5))
      
     
     try:
@@ -359,25 +563,29 @@ def bciPlotFunc(q):
     win2.resize(1000,600)
     win2.setWindowTitle('Open BCI plot')
     p2 = win2.addPlot(title="OpenBCI Feed")
-    curve = p2.plot(pen='y',)
-
-    def updateInProc(curve):
-        updateInProc.y.append(q.get())
+    curve0 = p2.plot(pen='y',)
+    curve1 = p2.plot(pen='b',)
+    curves = [curve0,curve1]
+    def updateInProc(curves):
+        updateInProc.y0.append(q.get()[0])
+        updateInProc.y1.append(q.get()[1])
         updateInProc.x.append(updateInProc.i)
         updateInProc.i += 1
-        updateInProc.y = updateInProc.y[-100:]
-        updateInProc.x = updateInProc.x[-100:]
+        updateInProc.y0 = updateInProc.y0[-1000:]
+        updateInProc.y1 = updateInProc.y1[-1000:]
+        updateInProc.x = updateInProc.x[-1000:]
 
-        curve.setData(updateInProc.x,updateInProc.y)
-        
+        curves[0].setData(updateInProc.x,updateInProc.y0)
+        curves[1].setData(updateInProc.x,updateInProc.y1)
     
     
     updateInProc.i = 0
-    updateInProc.y = []
+    updateInProc.y0 = []
+    updateInProc.y1 = []
     updateInProc.x = []
     timer = QtCore.QTimer()
-    timer.timeout.connect(lambda: updateInProc(curve))
-    timer.start(50)
+    timer.timeout.connect(lambda: updateInProc(curves))
+    timer.start(0)
 
     QtGui.QApplication.instance().exec_()
 
@@ -452,7 +660,14 @@ if __name__ == '__main__':
     pg.setConfigOption('foreground', 'k')
     
     #ECG Chart
+    
     ecgPlot = pg.PlotWidget(title="ECG")
+    eX = ecgPlot.getAxis('bottom')
+    eX.setLabel('Time')
+    print(type(eX))
+    eY = ecgPlot.getAxis('left')
+    eY.setLabel('Scaled Amplitude')
+    
     ecgPlot.enableAutoRange(enable=True)
     plotSplitter.addWidget(ecgPlot)
 
@@ -483,12 +698,8 @@ if __name__ == '__main__':
     annotate.addWidget(annotLabel)
     
     btn1 = QRadioButton("Heavy Traffic", rightWidget)
-    
     btn2 = QRadioButton("Moderate Traffic", rightWidget)
     btn3 = QRadioButton("Sparse Traffic", rightWidget)
-    #btn4 = QRadioButton("something", rightWidget)
-    #btn5 = QRadioButton("something else", rightWidget)
-    
     btns = [btn1,btn2,btn3]
     
     
@@ -511,7 +722,7 @@ if __name__ == '__main__':
     
     rightForm.addWidget(title)
     gsr = QLabel()
-    gsr.setText("GSR: {}".format(55))
+    gsr.setText("GSR: {}".format("--"))
     gsr.setAlignment(Qt.AlignCenter)
     rightForm.addWidget(gsr)
     
@@ -523,28 +734,24 @@ if __name__ == '__main__':
     horizontalSplitter.addWidget(leftWidget)
     horizontalSplitter.addWidget(rightWidget)
     horizontalSplitter.setSizes([500,200])
-    
-    
-
-
     horizontalSplitter.setStyleSheet("QSplitter::handle {   background: black;}")
     horizontalSplitter.setHandleWidth(1)
-    hmainBox.addWidget(horizontalSplitter)
 
+    hmainBox.addWidget(horizontalSplitter)
     hmainBox.setSpacing(0)
     hmainBox.setContentsMargins(0,0,0,0)
 
     statusBar = QStatusBar()
     mainWindow.setStatusBar(statusBar)
     label = QLabel()
+
     if currentComPort == None:
         label.setText("No COM Port Selected")
     else:
         label.setText("Com Port : " + currentComPort)
 
     statusBar.addPermanentWidget(label)
-
-
+    
     timer1 = QTimer()
     timer1.timeout.connect(update)
     timer1.start(300)

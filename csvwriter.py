@@ -13,3 +13,15 @@ def filewriter(sentence,filename, annotation,systime):
     i = 0
     buffer = [] 
     return l
+
+def filewriterBCI(data,filename, annotation,systime):
+    filename = "E:\\Coding\\Wirin\\wirinUI\\newFile2.csv"
+    
+    a = [[systime] + data + [annotation]]
+    
+    with open(filename, "a", newline="") as f:
+        print(f)
+        writer = csv.writer(f)
+        writer.writerows(a)
+  
+    

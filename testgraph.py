@@ -328,15 +328,15 @@ def oddball():
         pygame.quit()    
 
 
+#Threads
 
 t1 = threading.Thread(target=start_read, args=()) 
-
 t2 = threading.Thread(target=oddball,args=())
+t1.daemon = True
 t2.daemon = True
 
 
 
-t1.daemon = True
 def findComPorts(menu):
     print("COM port detected")
     menu = menu
@@ -360,16 +360,11 @@ def findComPorts(menu):
             
         except (OSError, serial.SerialException):
             pass
-    
-     
-    
     if len(result) == 0:
         action = menu.addAction("NO PORTS")
         action.setEnabled(False)
     for r in result:
         r = menu.addAction(r)
-  
-  
 
 def setComPort(menu,a):
     global currentComPort
@@ -399,11 +394,8 @@ def display(a):
                 start.setEnabled(False) 
                 stop.setEnabled(True)
         
-        
-              
-        
-        
                 t1.start()
+                #Odd ball disabled for now
                 #t2.start()
                 
             except (OSError, serial.SerialException):
@@ -425,18 +417,16 @@ def display(a):
     
 
 def stop_read():
-    global t1
+    global t1,t2
     global board
     global running
     running = False
     if(board != None):
         board.stop_stream()
-    print("Stop")
-    #ser.close()
     if(t1.isAlive()):
-        print("Stop")
         t1.join()
         t1 = threading.Thread(target=start_read, args=()) 
+
     if(t2.isAlive()):
         t2.join()
         t2 = threading.Thread(target=oddball, args=()) 
@@ -450,80 +440,80 @@ def plot_data():
 def updateGraph():
     print("Update Graph")
 
-#This function handles top menu bar press
+#Junk code from Matplotlib
 
-""" def animateECG(i):
-    global buffer
-    #print("Inside animate")
-    #pullData = open("eegdata.txt","r").read()
-    #dataList = pullData.split('\n')
+# """ def animateECG(i):
+#     global buffer
+#     #print("Inside animate")
+#     #pullData = open("eegdata.txt","r").read()
+#     #dataList = pullData.split('\n')
     
-    x = (pd.read_csv(r"data_1.csv",header=None)[1][:4000]).tolist()
-    m = wirinECGx.f(data,500.0)
-     for eachLine in dataList:
-        if len(eachLine)>1:
-            x,y = eachLine.split(',')
-            xList.append(int(x))
-            yList.append(int(y)) 
-    ecg.clear()
-    if(len(m[2])):
-        ecg.plot(m[1],m[2]) """
+#     x = (pd.read_csv(r"data_1.csv",header=None)[1][:4000]).tolist()
+#     m = wirinECGx.f(data,500.0)
+#      for eachLine in dataList:
+#         if len(eachLine)>1:
+#             x,y = eachLine.split(',')
+#             xList.append(int(x))
+#             yList.append(int(y)) 
+#     ecg.clear()
+#     if(len(m[2])):
+#         ecg.plot(m[1],m[2]) """
 
 
-def animatePPG(i):
-    #print("Inside animate")fwiri
-    # pullData = open("eegdata.txt","r").read()
-    # dataList = pullData.split('\n')
-    # xList = []
-    # yList = []
-    # for eachLine in dataList:
-    #     if len(eachLine)>1:
-    #         x,y = eachLine.split(',')
-    #         xList.append(int(x))
-    #         yList.append(int(y))
-    # ppg.clear()
-    # ppg.plot(xList,yList)
-    pass
+# def animatePPG(i):
+#     #print("Inside animate")fwiri
+#     # pullData = open("eegdata.txt","r").read()
+#     # dataList = pullData.split('\n')
+#     # xList = []
+#     # yList = []
+#     # for eachLine in dataList:
+#     #     if len(eachLine)>1:
+#     #         x,y = eachLine.split(',')
+#     #         xList.append(int(x))
+#     #         yList.append(int(y))
+#     # ppg.clear()
+#     # ppg.plot(xList,yList)
+#     pass
 
 
-def animateBCI(q,i):
-    openBCIStream = []
-    global ix
-    global bx
-    uVolts_per_count = (4500000)/24/(2**23-1)
-    #print(type(q))
+# def animateBCI(q,i):
+#     openBCIStream = []
+#     global ix
+#     global bx
+#     uVolts_per_count = (4500000)/24/(2**23-1)
+#     #print(type(q))
     
-    for i in range(250):    
-        if(not q.empty()):
-            openBCIStream = q.get()
+#     for i in range(250):    
+#         if(not q.empty()):
+#             openBCIStream = q.get()
             
             
-            try:
-                #print("From animate =>", end="")
-                #print(openBCIStream)
-                y1.append(openBCIStream[0]*uVolts_per_count)
-                # y2.append(openBCIStream[1]*uVolts_per_count)
-                # y3.append(openBCIStream[2]*uVolts_per_count)
-                # y4.append(openBCIStream[3]*uVolts_per_count)
-                # y5.append(openBCIStream[4]*uVolts_per_count)
-                # y6.append(openBCIStream[5]*uVolts_per_count)
-                # y7.append(openBCIStream[6]*uVolts_per_count)
-                # y8.append(openBCIStream[7]*uVolts_per_count) 
-                xss.append(ix)
-                ix += 1
-                xs = xss[-50:]
-            except:
-                pass
+#             try:
+#                 #print("From animate =>", end="")
+#                 #print(openBCIStream)
+#                 y1.append(openBCIStream[0]*uVolts_per_count)
+#                 # y2.append(openBCIStream[1]*uVolts_per_count)
+#                 # y3.append(openBCIStream[2]*uVolts_per_count)
+#                 # y4.append(openBCIStream[3]*uVolts_per_count)
+#                 # y5.append(openBCIStream[4]*uVolts_per_count)
+#                 # y6.append(openBCIStream[5]*uVolts_per_count)
+#                 # y7.append(openBCIStream[6]*uVolts_per_count)
+#                 # y8.append(openBCIStream[7]*uVolts_per_count) 
+#                 xss.append(ix)
+#                 ix += 1
+#                 xs = xss[-50:]
+#             except:
+#                 pass
 
-        bciSub.clear()
-        bciSub.plot(xs, y1[-50:])
-        # bciSub.plot(xs, y2[-50:])
-        # bciSub.plot(xs, y3[-50:])
-        # bciSub.plot(xs, y4[-50:])
-        # bciSub.plot(xs, y5[-50:])
-        # bciSub.plot(xs, y6[-50:])
-        # bciSub.plot(xs, y7[-50:])
-        # bciSub.plot(xs, y8[-50:]) 
+#         bciSub.clear()
+#         bciSub.plot(xs, y1[-50:])
+#         # bciSub.plot(xs, y2[-50:])
+#         # bciSub.plot(xs, y3[-50:])
+#         # bciSub.plot(xs, y4[-50:])
+#         # bciSub.plot(xs, y5[-50:])
+#         # bciSub.plot(xs, y6[-50:])
+#         # bciSub.plot(xs, y7[-50:])
+#         # bciSub.plot(xs, y8[-50:]) 
         
 
 
@@ -539,7 +529,7 @@ def update():
     global heartRate
     global ecgBufy
     global ecgPlot
-    #q.put(random.randint(1,5))
+    
      
     
     try:
@@ -549,16 +539,13 @@ def update():
         #heartRate.setText("Heart Rate: {}".format(ecgBuffer[0]))
         #ecgPlot.plot(ecgBuffer[2],ecgBuffer[3] ,pen=None, symbol='o')
         #ecgPlot.plot(ecgBuffer[5])
-        #y = [2,4,6,8,10,12,14,16,18,20]
-        #y2 = [0,1,2,4,12,14,16,17,14,22]
-        #x = range(0,10)
         ecgPlot.plot(ecgBufy)
-        #print("OK")
+    
     except:
         traceback.print_exc()
 
 
-
+#PyQtGraph Multiprocessed BCI Plot
 
 def bciPlotFunc(q):
     app2 = QtGui.QApplication([])
@@ -610,13 +597,8 @@ if __name__ == '__main__':
     hmainBox = QHBoxLayout()
     wid.setLayout(hmainBox)
 
-
-
-
     toolbar = QToolBar()
     mainWindow.addToolBar(toolbar)
-
-
 
     #Comports
 
@@ -683,10 +665,6 @@ if __name__ == '__main__':
     gsrPlot = pg.PlotWidget(title="GSR")
     plotSplitter.addWidget(gsrPlot)
 
-   
-
-    
-    
     horizontalSplitter = QSplitter(Qt.Horizontal)
 
     #
@@ -760,8 +738,6 @@ if __name__ == '__main__':
     timer1.timeout.connect(update)
     timer1.start(300)
     menu.aboutToShow.connect(partial(findComPorts,menu))
-    
-
 
     mainWindow.show()
 

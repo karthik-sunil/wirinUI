@@ -1,50 +1,54 @@
-#Essential imports
-import sys, glob, time, random, threading, csv, datetime, traceback, serial
-from functools import partial 
-from multiprocessing import Process, Queue
-
-#GUI
+import sys
+import csvwriter 
 from PyQt5.QtWidgets import *
+import serial 
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-
-#Main libraries
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
+import matplotlib.pyplot as plt
+import matplotlib.animation as anim 
+from functools import partial 
+import glob 
+import threading
+import wirinECGx
 import pandas as pd
 import numpy as np
+import random
+import time
+import random
 import pygame
-from pyOpenBCI import OpenBCICyton
-import pyOpenBCI
+import time
+import csv
+import datetime
+import mySer
+import traceback
 
-#Graphing
 from pyqtgraph.Qt import QtGui, QtCore
 import pyqtgraph as pg
 import pyqtgraph.widgets.RemoteGraphicsView
 
-#Custom Modules
-import csvwriter 
 from csvwriter import *
-import wirinECGx
-import mySer
+import datetime
+import pyOpenBCI
+from multiprocessing import Process, Queue
+from pyOpenBCI import OpenBCICyton
 
-#Variables to be tweaked 
-baudRate = 115200
-programPath = ""
-graphInterval = 10
-openBCIFile = "newFile2"#.csv
-arduinoFile = "newFile1" #.csv
-oddballFile = "write.csv"
-
-#Fonts
 titleFont = QtGui.QFont("Times", 14, QtGui.QFont.Bold) 
 textFont = QtGui.QFont("Times", 12)
 
-#Globals
+
 openBCIStream = []
+
 buttonAction = "None"
 board = None
 q = Queue()
+
 running = False
 currentComPort = None
+baudRate = 115200
+graphInterval = 10
 buffer = []
 ecgBuffer = []
 ecgBufy = []
@@ -66,37 +70,45 @@ data = []
 
 bx = 0
 
+BCIplt = plt.figure()
+bciSub = BCIplt.add_subplot(1,1,1)
 
-#Handle the annotation
+
 def annotator(button):
     global buttonAction
     if button.isChecked():
         buttonAction = button.text()
 
-#Multithreaded Function to read the OpenBCI stream
 def print_raw(sample):
     import csvwriter
-    global openBCIStream,buttonAction
-    
-
+    global openBCIStream
+    global buttonAction
     openBCIStream =  (sample.channels_data)
-    
+    #print("From print_Raw: ", end= "")
+    #print(openBCIStream)
     systime = datetime.datetime.now().isoformat()
    
-    inp = csvwriter.filewriterBCI(openBCIStream,openBCIFile,buttonAction,systime)
+    inp = csvwriter.filewriterBCI(openBCIStream,"newFile2",buttonAction,systime)
         
     q.put(openBCIStream)
 
 
-#Thread 1 handling data read from Arduino
+
+   
+
+
 def start_read():
-    global running, buffer, buttonAction, board, ecgBuffer, ecgBufx, ecgBufy
-    
+    global running
+    global buffer
+    global buttonAction
+    global board 
+    global ecgBuffer
+    global ecgBufx
+    global ecgBufy
     ser = serial.Serial(currentComPort, baudRate)
-    
     running = True
     
-    result = pd.read_csv(programPath + arduinoFile, header=None)
+    result = pd.read_csv(r"E:\\Coding\\Wirin\\wirinUI\\data_1.csv", header=None)
     
     count = 0
 
@@ -105,7 +117,7 @@ def start_read():
     except:
         print("Couldnt find OpenBCI")
 
-    #Start board thread if board was found
+    
     if(running and board):
         boardThread = threading.Thread(target=board.start_stream, args=(print_raw,))
         boardThread.daemon = True
@@ -118,13 +130,12 @@ def start_read():
         #data = data.decode().strip()
         mySer.handle_data(int.from_bytes(data,"little"))
         try:
-          
+            #print(mySer.PPG_IR[-1])
             ecgBufy.append(mySer.PPG_Red[-1])
             ecgBufy = ecgBufy[-4000:]
             
         except:
             pass
-        
         # #data = ",".join(map(str,l1[count]))
         # ecgBufy.append(result[1][count]) 
         # ecgBufx.append(count)
@@ -150,8 +161,8 @@ def oddball():
     win = pygame.display.set_mode((500, 500))
     precision = 50 # Dynamic variable
     beat_sl_no = 0
-  
-    with open(programPath + oddballFile, 'w+', newline = '') as writeFile:
+    path = "E:\\Coding\\Wirin\\wirinUI\\tones\\"
+    with open("E:\\Coding\\Wirin\\wirinUI\\write.csv", 'w+', newline = '') as writeFile:
         print(writeFile)
         writer = csv.writer(writeFile, delimiter = ',')
         row = []

@@ -5,8 +5,7 @@ from scipy import signal
 import numpy as np
 import biosppy
 
-
-## x = pd.read_csv(r"D:\Aniruddh\Nerdy Stuff\WIRIN\Datasets\Data_CSV\data_1.csv",header=None)
+x = pd.read_csv(r"D:\Aniruddh\Nerdy Stuff\WIRIN\Datasets\Data_CSV\data_1.csv",header=None)
 ecg = x[1]
 fqs = 500  # Sample frequency (Hz)
 f0 = 50.0  # Frequency to be removed from signal (Hz)
@@ -76,39 +75,3 @@ while(j < loop_num):
     plt.show()
     
     j = j + 1
-
-
-class ECG:
-
-    def __init(self):
-        
-        self.fqs = 500.0  # Sample frequency (Hz)
-        self.f0 = 50.0  # Frequency to be removed from signal (Hz)
-        self.Q = 0.5  # Quality factor
-        self.len_frames = 6
-        self.data = []
-        
-        def analyze(self, data):
-            self.data =  self.data[-self.fqs:]
-            self.data.append(data)
-            r_peaks = biosppy.signals.ecg.ecg(signal=data, sampling_rate=self.fqs, show = False)
-            x_peaks = r_peaks[2]
-            
-            y_peaks = []
-            for k in x_peaks:
-                y_peaks.append(data[k])
-            
-            num_peaks = 0
-            for i in x_peaks:
-                if(i in range(fqs, (len_frames+1)*(fqs))):
-                    num_peaks = num_peaks + 1
-
-            print(num_peaks*60/(len_frames))
-        
-        #print(fqs, len_frames*(fqs+1), len_frames, fqs+1)
-        
-        def plot(self):
-            plt.plot(self.data, color = 'blue')
-            plt.scatter(self.x_peaks, self.y_peaks, color = 'red')
-            #plt.xlim(self.fqs,self.fqs*(self.len_frames+1))
-            plt.show()

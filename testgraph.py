@@ -49,6 +49,8 @@ buffer = []
 ecgBuffer = []
 ecgBufy = []
 ecgBufx = []
+ppgBufy = []
+ppgBufx = []
     
 data = []
 ix = 0
@@ -90,7 +92,7 @@ def print_raw(sample):
 
 #Thread 1 handling data read from Arduino
 def start_read():
-    global running, buffer, buttonAction, board, ecgBuffer, ecgBufx, ecgBufy
+    global running, buffer, buttonAction, board, ecgBuffer, ecgBufx, ecgBufy, ppgBuffer, ppgBufx, ppgBufy 
     
     ser = serial.Serial(currentComPort, baudRate)
     
@@ -155,30 +157,37 @@ def oddball():
         print(writeFile)
         writer = csv.writer(writeFile, delimiter = ',')
         row = []
-        row.append("Experiment: Odd Ball Expt")
-        writer.writerow(row)
-        row = []
-        row.append("Normal sound: 500 Hz")
-        writer.writerow(row)
-        row = []
-        row.append("Odd sound: 1000 Hz")
-        writer.writerow(row)
-        row = []
-        row.append("Marker for normal sound: 5")
-        writer.writerow(row)
-        row = []
-        row.append("Marker for odd sound: 7")
-        writer.writerow(row)
-        row = []
-        row.append("Marker for correct click: 1")
-        writer.writerow(row)
-        row = []
-        row.append("Marker for incorrect click: 0")
-        writer.writerow(row)
 
-        row = []
-        row.append(" ")
-        writer.writerow(row)
+        row_append = ["Experiment: Odd Ball Expt","Normal sound: 500 Hz","Odd sound: 1000 Hz","Marker for normal sound: 5","Marker for odd sound: 7","Marker for correct click: 1","Marker for incorrect click: 0"," "]
+        row_append_index = len(row_append)
+        count = 0 
+        for  count in range(row_append_index):
+            row = []
+            row.append(row_append[count])
+            writer.writerow(row)
+            # row.append("Experiment: Odd Ball Expt")
+            # writer.writerow(row)
+            # row = []
+            # row.append("Normal sound: 500 Hz")
+            # writer.writerow(row)
+            # row = []
+            # row.append("Odd sound: 1000 Hz")
+            # writer.writerow(row)
+            # row = []
+            # row.append("Marker for normal sound: 5")
+            # writer.writerow(row)
+            # row = []
+            # row.append("Marker for odd sound: 7")
+            # writer.writerow(row)
+            # row = []
+            # row.append("Marker for correct click: 1")
+            # writer.writerow(row)
+            # row = []
+            # row.append("Marker for incorrect click: 0")
+            # writer.writerow(row)
+            # row = []
+            # row.append(" ")
+            # writer.writerow(row)
         
         #Table 
         row = []
@@ -446,7 +455,7 @@ def updateGraph():
 #     global buffer
 #     #print("Inside animate")
 #     #pullData = open("eegdata.txt","r").read()
-#     #dataList = pullData.split('\n')
+#     #dataList = pullData.split('\n')louikjh
     
 #     x = (pd.read_csv(r"data_1.csv",header=None)[1][:4000]).tolist()
 #     m = wirinECGx.f(data,500.0)
@@ -529,6 +538,8 @@ def update():
     global heartRate
     global ecgBufy
     global ecgPlot
+    global ppgBufy
+    global ppgPlot 
     
      
     

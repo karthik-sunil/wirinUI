@@ -51,6 +51,7 @@ currentComPort = None
 buffer = []
 ecgBuffer = []
 ecgBufy = []
+respBufy = []
 ecgBufx = []
 ppgBufy = []
 ppgBufx = []
@@ -296,7 +297,7 @@ t1.daemon = True
 t2.daemon = True
 
 
-
+#This function searchs for available COM Ports
 def findComPorts(menu):
     print("COM port detected")
     menu = menu
@@ -326,11 +327,15 @@ def findComPorts(menu):
     for r in result:
         r = menu.addAction(r)
 
+#This function sets the choosen comport to the global currentComPort Variable        
+
 def setComPort(menu,a):
     global currentComPort
     currentComPort = a.text()
     label.setText("Com Port : " + currentComPort)
     findComPorts(menu)
+
+#This function handles the top menu bar
 
 def display(a):
     global running
@@ -375,7 +380,7 @@ def display(a):
         startBciProcess()        
 
     
-
+#When you press Stop button, this function gets called
 def stop_read():
     global t1,t2
     global board
@@ -384,124 +389,14 @@ def stop_read():
     if(board != None):
         board.stop_stream()
     if(t1.isAlive()):
-        t1.join()
+        t1.join() #Stop the data collection thread
         t1 = threading.Thread(target=start_read, args=()) 
 
     if(t2.isAlive()):
-        t2.join()
+        t2.join() #Stop the odd ball thread
         t2 = threading.Thread(target=oddball, args=()) 
     
     print("Stop")
-
-def plot_data():
-    print("plot")
-
-
-def updateGraph():
-    print("Update Graph")
-
-#Junk code from Matplotlib
-
-# """ def animateECG(i):
-#     global buffer
-#     #print("Inside animate")
-#     #pullData = open("eegdata.txt","r").read()
-#     #dataList = pullData.split('\n')louikjh
-    
-#     x = (pd.read_csv(r"data_1.csv",header=None)[1][:4000]).tolist()
-#     m = wirinECGx.f(data,500.0)
-#      for eachLine in dataList:
-#         if len(eachLine)>1:
-#             x,y = eachLine.split(',')
-#             xList.append(int(x))
-#             yList.append(int(y)) 
-#     ecg.clear()
-#     if(len(m[2])):
-#         ecg.plot(m[1],m[2]) """
-
-
-# def animatePPG(i):
-#     #print("Inside animate")fwiri
-#     # pullData = open("eegdata.txt","r").read()
-#     # dataList = pullData.split('\n')
-#     # xList = []
-#     # yList = []
-#     # for eachLine in dataList:
-#     #     if len(eachLine)>1:
-#     #         x,y = eachLine.split(',')
-#     #         xList.append(int(x))
-#     #         yList.append(int(y))
-#     # ppg.clear()
-#     # ppg.plot(xList,yList)
-#     pass
-
-
-# def animateBCI(q,i):
-#     openBCIStream = []
-#     global ix
-#     global bx
-#     uVolts_per_count = (4500000)/24/(2**23-1)
-#     #print(type(q))
-    
-#     for i in range(250):    
-#         if(not q.empty()):
-#             openBCIStream = q.get()
-            
-            
-#             try:
-#                 #print("From animate =>", end="")
-#                 #print(openBCIStream)
-#                 y1.append(openBCIStream[0]*uVolts_per_count)
-#                 # y2.append(openBCIStream[1]*uVolts_per_count)
-#                 # y3.append(openBCIStream[2]*uVolts_per_count)
-#                 # y4.append(openBCIStream[3]*uVolts_per_count)
-#                 # y5.append(openBCIStream[4]*uVolts_per_count)
-#                 # y6.append(openBCIStream[5]*uVolts_per_count)
-#                 # y7.append(openBCIStream[6]*uVolts_per_count)
-#                 # y8.append(openBCIStream[7]*uVolts_per_count) 
-#                 xss.append(ix)
-#                 ix += 1
-#                 xs = xss[-50:]
-#             except:
-#                 pass
-
-#         bciSub.clear()
-#         bciSub.plot(xs, y1[-50:])
-#         # bciSub.plot(xs, y2[-50:])
-#         # bciSub.plot(xs, y3[-50:])
-#         # bciSub.plot(xs, y4[-50:])
-#         # bciSub.plot(xs, y5[-50:])
-#         # bciSub.plot(xs, y6[-50:])
-#         # bciSub.plot(xs, y7[-50:])
-#         # bciSub.plot(xs, y8[-50:]) 
-        
-
-
-def startBciProcess():
-    
-    p = Process(target=bciPlotFunc, args=(q,))
-    p.start()
-    
-
-def update():
-    global ecgBuffer
-    global heartRate
-    global ecgPlot
-    global ppgPlot 
-    global respPlot 
-    
-    
-     
-    
-    try:
-        ecgPlot.clear()
-        #heartRate.setText("Heart Rate: {}".format(ecgBuffer[0]))
-        ecgPlot.plot(ecgBufy)
-        ppgPlot.plot(ppgBufy)
-        respPlot.plot(respBufy)
-    
-    except:
-        traceback.print_exc()
 
 
 #PyQtGraph Multiprocessed BCI Plot
@@ -533,14 +428,52 @@ def bciPlotFunc(q):
     updateInProc.y0 = []
     updateInProc.y1 = []
     updateInProc.x = []
+
+    #update the openBCI chart
     timer = QtCore.QTimer()
     timer.timeout.connect(lambda: updateInProc(curves))
     timer.start(0)
 
     QtGui.QApplication.instance().exec_()
 
+
+
+#Dummy function which is of no use for now
+def plot_data():
+    pass
+
+#Dummy function which is of no use for now
+def updateGraph():
+    print("Update Graph")
+
+#Start the openBCI plotting in a new process of its own
+def startBciProcess():
+    p = Process(target=bciPlotFunc, args=(q,))
+    p.start()
+    
+
+#Update the graphs here
+def update():
+    global ecgBuffer
+    global heartRate
+    global ecgPlot
+    global ppgPlot 
+    global respPlot
+    global respBufy 
+    
+    try:
+        ecgPlot.clear()
+        #heartRate.setText("Heart Rate: {}".format(ecgBuffer[0]))
+        ecgPlot.plot(ecgBufy)
+        ppgPlot.plot(ppgBufy)
+        respPlot.plot(respBufy)
+    
+    except:
+        traceback.print_exc()
+
+#This function is called everytime the GUI is closed
 def myExitHandler():
-    board.disconnect()
+    board.disconnect() #Disconnect open BCI stream
     stop_read()
     
     
@@ -548,15 +481,15 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     app.aboutToQuit.connect(myExitHandler)
     mainWindow = QMainWindow()
-    mainWindow.setGeometry(50, 50, 1200, 800)
-    mainWindow.setWindowTitle("Readings")
+    mainWindow.setGeometry(50, 50, 1200, 800) #Set default dimensions of the window
+    mainWindow.setWindowTitle("Readings") #Set title of the Window
 
     wid = QWidget()
     mainWindow.setCentralWidget(wid)
     hmainBox = QHBoxLayout()
     wid.setLayout(hmainBox)
 
-    toolbar = QToolBar()
+    toolbar = QToolBar() #Add a top Menu Bar
     mainWindow.addToolBar(toolbar)
 
     #Comports
@@ -605,14 +538,12 @@ if __name__ == '__main__':
     pg.setConfigOption('foreground', 'k')
     
     #ECG Chart
-    
     ecgPlot = pg.PlotWidget(title="ECG")
     eX = ecgPlot.getAxis('bottom')
     eX.setLabel('Time')
     print(type(eX))
     eY = ecgPlot.getAxis('left')
     eY.setLabel('Scaled Amplitude')
-    
     ecgPlot.enableAutoRange(enable=True)
     plotSplitter.addWidget(ecgPlot)
 

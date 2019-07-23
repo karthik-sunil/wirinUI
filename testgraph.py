@@ -1,32 +1,32 @@
-#Essential imports
+#import essential performance optimization dependencies 
 import sys, glob, time, random, threading, csv, datetime, traceback, serial
 from functools import partial 
 from multiprocessing import Process, Queue
 
-#GUI
+#import GUI libraries 
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
-#Main libraries
+#import main libraries
 import pandas as pd
 import numpy as np
 import pygame
 from pyOpenBCI import OpenBCICyton
 import pyOpenBCI
 
-#Graphing
+#import graphing libraries 
 from pyqtgraph.Qt import QtGui, QtCore
 import pyqtgraph as pg
 import pyqtgraph.widgets.RemoteGraphicsView
 
-#Custom Modules
+#import custom modules
 import csvwriter 
 from csvwriter import *
 import wirinECGx
 import mySer
 
-#Variables to be tweaked 
+#program parameters and files   
 baudRate = 115200
 programPath = ""
 graphInterval = 10
@@ -38,7 +38,7 @@ oddballFile = "write.csv"
 titleFont = QtGui.QFont("Times", 14, QtGui.QFont.Bold) 
 textFont = QtGui.QFont("Times", 12)
 
-#Globals
+#global variable declarations 
 openBCIStream = []
 buttonAction = "None"
 board = None
@@ -51,10 +51,8 @@ ecgBufy = []
 ecgBufx = []
 ppgBufy = []
 ppgBufx = []
-    
 data = []
 ix = 0
-
 y1 = []
 y2 = []
 y3 = []
@@ -65,11 +63,9 @@ y7 = []
 y8 = []
 xss = []
 data = []
-
 bx = 0
 
-
-#Handle the annotation
+#data annotation handling 
 def annotator(button):
     global buttonAction
     if button.isChecked():
@@ -126,26 +122,8 @@ def start_read():
             
         except:
             pass
-        
-        # #data = ",".join(map(str,l1[count]))
-        # ecgBufy.append(result[1][count]) 
-        # ecgBufx.append(count)
-        # count += 1
-        # #print(count)
-        # systime = datetime.datetime.now().isoformat()
-        # #data = data + c 
-        # #inp = filewriter(data,"newFile",buttonAction,systime)
-        
-
-        
-        # ecgBufy = ecgBufy[-4000:]
-        # ecgBufx = ecgBufx[-4000:]
-         
-        # if(count % 4000 == 0):
-        #     ecgBuffer = wirinECGx.f(ecgBufx, ecgBufy, 500.0)
-        #     #print(ecgBuffer)
       
-    
+#module implementing the oddball paradigm experiment 
 def oddball():
     global running
     pygame.init()
@@ -165,30 +143,6 @@ def oddball():
             row = []
             row.append(row_append[count])
             writer.writerow(row)
-            # row.append("Experiment: Odd Ball Expt")
-            # writer.writerow(row)
-            # row = []
-            # row.append("Normal sound: 500 Hz")
-            # writer.writerow(row)
-            # row = []
-            # row.append("Odd sound: 1000 Hz")
-            # writer.writerow(row)
-            # row = []
-            # row.append("Marker for normal sound: 5")
-            # writer.writerow(row)
-            # row = []
-            # row.append("Marker for odd sound: 7")
-            # writer.writerow(row)
-            # row = []
-            # row.append("Marker for correct click: 1")
-            # writer.writerow(row)
-            # row = []
-            # row.append("Marker for incorrect click: 0")
-            # writer.writerow(row)
-            # row = []
-            # row.append(" ")
-            # writer.writerow(row)
-        
         #Table 
         row = []
         row.append("Sound")
@@ -214,10 +168,7 @@ def oddball():
         row.append("1")
         writer.writerow(row)
         
-        row = []
-        row.append("7")
-        row.append("No CLick")
-        row.append("0")
+        row = ["7", "No Click", "0"]
         writer.writerow(row)
         
         
@@ -325,8 +276,8 @@ def oddball():
             time1 = []
             
             
-            row.append(beat_sl_no)
             row.append(sound_present_time)
+            -row.append(beat_sl_no)
             row.append(beat_type)
             row.append(response_type)
             row.append(sound_response_time)
@@ -337,15 +288,14 @@ def oddball():
         pygame.quit()    
 
 
-#Threads
-
+#thread initialization  
 t1 = threading.Thread(target=start_read, args=()) 
 t2 = threading.Thread(target=oddball,args=())
 t1.daemon = True
 t2.daemon = True
 
 
-
+#checks for COM-ports and lists all available ports  
 def findComPorts(menu):
     print("COM port detected")
     menu = menu
@@ -673,7 +623,7 @@ if __name__ == '__main__':
     plotSplitter.addWidget(ppgPlot)
     
     #GSR Chart    
-    gsrPlot = pg.PlotWidget(title="GSR")
+    gsrPlot = pg.PlotWidget(title="Respiration")
     plotSplitter.addWidget(gsrPlot)
 
     horizontalSplitter = QSplitter(Qt.Horizontal)

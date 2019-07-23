@@ -3,17 +3,17 @@ import sys, glob, time, random, threading, csv, datetime, traceback, serial
 from functools import partial 
 from multiprocessing import Process, Queue
 
-#GUI Libraries
+#GUI
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 #Main libraries
-import pandas as pd #for CSV
-import numpy as np #for manipulating data
-import pygame #for Odd Ball UI
+import pandas as pd
+import numpy as np
+import pygame
 from pygame.locals import *
-from pyOpenBCI import OpenBCICyton 
+from pyOpenBCI import OpenBCICyton
 import pyOpenBCI
 
 #Graphing
@@ -27,15 +27,13 @@ from csvwriter import *
 import wirinECGx
 import mySer
 
-import os
-
 #Variables to be tweaked 
 baudRate = 115200
-programPath = os.path.dirname(os.path.abspath(__file__)) + "\\"
+programPath = "E:\\Coding\\Wirin\wirinUI\\"
 graphInterval = 10
 openBCIFile = "newFile2"#.csv
 arduinoFile = "newFile1" #.csv
-oddballFile = "write"
+oddballFile = "write.csv"
 
 #Fonts
 titleFont = QtGui.QFont("Times", 14, QtGui.QFont.Bold) 
@@ -160,7 +158,7 @@ def oddball():
     precision = 50 # Dynamic variable
     beat_sl_no = 0
   
-    with open(programPath + oddballFile + ".csv", 'w+', newline = '') as writeFile:
+    with open(programPath + oddballFile, 'w+', newline = '') as writeFile:
         print(writeFile)
         writer = csv.writer(writeFile, delimiter = ',')
         
@@ -306,7 +304,7 @@ def findComPorts(menu):
     elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
         # this excludes your current terminal "/dev/tty"
         ports = glob.glob('/dev/tty[A-Za-z]*')
-    elif sys.platform.startswithe('darwin'):
+    elif sys.platform.startswith('darwin'):
         ports = glob.glob('/dev/tty.*')
     else:
         raise EnvironmentError('Unsupported platform')

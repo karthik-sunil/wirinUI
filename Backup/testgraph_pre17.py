@@ -1,63 +1,44 @@
-#import essential performance optimization dependencies 
+#Essential imports
 import sys, glob, time, random, threading, csv, datetime, traceback, serial
 from functools import partial 
 from multiprocessing import Process, Queue
 
-<<<<<<< HEAD
-#import GUI libraries 
-=======
-#GUI Libraries
->>>>>>> 6d0ae1526ea5f0d4a0d869082e7dd8368e69e263
+#GUI
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
-<<<<<<< HEAD
-#import main libraries
+#Main libraries
 import pandas as pd
 import numpy as np
 import pygame
 from pyOpenBCI import OpenBCICyton
-=======
-#Main libraries
-import pandas as pd #for CSV
-import numpy as np #for manipulating data
-import pygame #for Odd Ball UI
-from pygame.locals import *
-from pyOpenBCI import OpenBCICyton 
->>>>>>> 6d0ae1526ea5f0d4a0d869082e7dd8368e69e263
 import pyOpenBCI
 
-#import graphing libraries 
+#Graphing
 from pyqtgraph.Qt import QtGui, QtCore
 import pyqtgraph as pg
 import pyqtgraph.widgets.RemoteGraphicsView
 
-#import custom modules
+#Custom Modules
 import csvwriter 
 from csvwriter import *
 import wirinECGx
 import mySer
 
-<<<<<<< HEAD
-#program parameters and files   
-=======
-import os
-
 #Variables to be tweaked 
->>>>>>> 6d0ae1526ea5f0d4a0d869082e7dd8368e69e263
 baudRate = 115200
-programPath = os.path.dirname(os.path.abspath(__file__)) + "\\"
+programPath = ""
 graphInterval = 10
 openBCIFile = "newFile2"#.csv
 arduinoFile = "newFile1" #.csv
-oddballFile = "write"
+oddballFile = "write.csv"
 
 #Fonts
 titleFont = QtGui.QFont("Times", 14, QtGui.QFont.Bold) 
 textFont = QtGui.QFont("Times", 12)
 
-#global variable declarations 
+#Globals
 openBCIStream = []
 buttonAction = "None"
 board = None
@@ -68,10 +49,10 @@ buffer = []
 ecgBuffer = []
 ecgBufy = []
 ecgBufx = []
-ppgBufy = []
-ppgBufx = []
+    
 data = []
 ix = 0
+
 y1 = []
 y2 = []
 y3 = []
@@ -82,9 +63,11 @@ y7 = []
 y8 = []
 xss = []
 data = []
+
 bx = 0
 
-#data annotation handling 
+
+#Handle the annotation
 def annotator(button):
     global buttonAction
     if button.isChecked():
@@ -107,13 +90,13 @@ def print_raw(sample):
 
 #Thread 1 handling data read from Arduino
 def start_read():
-    global running, buffer, buttonAction, board, ecgBuffer, ecgBufx, ecgBufy, ppgBufy, respBufy
+    global running, buffer, buttonAction, board, ecgBuffer, ecgBufx, ecgBufy
     
     ser = serial.Serial(currentComPort, baudRate)
     
     running = True
     
-    #result = pd.read_csv(programPath + arduinoFile + ".csv", header=None)
+    result = pd.read_csv(programPath + arduinoFile, header=None)
     
     count = 0
 
@@ -132,21 +115,35 @@ def start_read():
     while(running):
         
         data = ser.read()
+        #data = data.decode().strip()
         mySer.handle_data(int.from_bytes(data,"little"))
         try:
-            ecgBufy.append(mySer.ECG[-1])
+          
+            ecgBufy.append(mySer.PPG_Red[-1])
             ecgBufy = ecgBufy[-4000:]
-            
-            ppgBufy.append(mySer.PPG_Red[-1])
-            ppgBufy = ppgBufy[-4000:]
-
-            resp.append()
-
             
         except:
             pass
+        
+        # #data = ",".join(map(str,l1[count]))
+        # ecgBufy.append(result[1][count]) 
+        # ecgBufx.append(count)
+        # count += 1
+        # #print(count)
+        # systime = datetime.datetime.now().isoformat()
+        # #data = data + c 
+        # #inp = filewriter(data,"newFile",buttonAction,systime)
+        
+
+        
+        # ecgBufy = ecgBufy[-4000:]
+        # ecgBufx = ecgBufx[-4000:]
+         
+        # if(count % 4000 == 0):
+        #     ecgBuffer = wirinECGx.f(ecgBufx, ecgBufy, 500.0)
+        #     #print(ecgBuffer)
       
-#module implementing the oddball paradigm experiment 
+    
 def oddball():
     global running
     pygame.init()
@@ -154,19 +151,35 @@ def oddball():
     precision = 50 # Dynamic variable
     beat_sl_no = 0
   
-    with open(programPath + oddballFile + ".csv", 'w+', newline = '') as writeFile:
+    with open(programPath + oddballFile, 'w+', newline = '') as writeFile:
         print(writeFile)
         writer = csv.writer(writeFile, delimiter = ',')
-<<<<<<< HEAD
         row = []
+        row.append("Experiment: Odd Ball Expt")
+        writer.writerow(row)
+        row = []
+        row.append("Normal sound: 500 Hz")
+        writer.writerow(row)
+        row = []
+        row.append("Odd sound: 1000 Hz")
+        writer.writerow(row)
+        row = []
+        row.append("Marker for normal sound: 5")
+        writer.writerow(row)
+        row = []
+        row.append("Marker for odd sound: 7")
+        writer.writerow(row)
+        row = []
+        row.append("Marker for correct click: 1")
+        writer.writerow(row)
+        row = []
+        row.append("Marker for incorrect click: 0")
+        writer.writerow(row)
 
-        row_append = ["Experiment: Odd Ball Expt","Normal sound: 500 Hz","Odd sound: 1000 Hz","Marker for normal sound: 5","Marker for odd sound: 7","Marker for correct click: 1","Marker for incorrect click: 0"," "]
-        row_append_index = len(row_append)
-        count = 0 
-        for  count in range(row_append_index):
-            row = []
-            row.append(row_append[count])
-            writer.writerow(row)
+        row = []
+        row.append(" ")
+        writer.writerow(row)
+        
         #Table 
         row = []
         row.append("Sound")
@@ -192,7 +205,10 @@ def oddball():
         row.append("1")
         writer.writerow(row)
         
-        row = ["7", "No Click", "0"]
+        row = []
+        row.append("7")
+        row.append("No CLick")
+        row.append("0")
         writer.writerow(row)
         
         
@@ -210,32 +226,6 @@ def oddball():
         
         writer.writerow(row)
         
-=======
-        
-        rows = ["Experiment: Odd Ball Expt","Normal sound: 500 Hz",
-                "Odd sound: 1000 Hz","Marker for normal sound: 5",
-                "Marker for odd sound: 7","Marker for correct click: 1",
-                "Marker for incorrect click: 0"," "]
-
-        for row in rows:
-            writer.writerow([row])
-
-        #Table 
-        rows = [["Sound","Response","Result"],
-                ["5","Click","0"],
-                ["5","No Click","1"],
-                ["7","Click","1"],
-                ["7","No click","0"],
-                [" "],
-                ["Sl No","Sound Present Time",
-                    "Beat Type","Response Type",
-                    "Key Press Time",
-                    "Response Time"]]
-
-        for row in rows:
-            writer.writerow(row)     
-       
->>>>>>> 6d0ae1526ea5f0d4a0d869082e7dd8368e69e263
         while(1 and running):
             
             beat_sl_no += 1
@@ -243,7 +233,6 @@ def oddball():
             
             print('Delay 1 Start 2000')
             pygame.time.delay(2000)
-            
             diff_4 = random.randint(1, precision) # Difference after 4 seconds
         
             beep_time = (int(2000*diff_4/precision))
@@ -255,7 +244,7 @@ def oddball():
                 
                 # "Odd Ball"
                 beat_type = 7 
-                pygame.mixer.music.load(programPath + r"tones\\" +r"500hz.wav")
+                pygame.mixer.music.load(path+r"500hz.wav")
                 pygame.mixer.music.play(0)        
                 sound_present_time = datetime.datetime.now().time()
                 
@@ -264,12 +253,7 @@ def oddball():
                 flag = True
                 break_flag = False
                 while(1):
-                    event = pygame.event.get()
-                    for e in event:
-                        if e.type == 12:
-                            pygame.quit()
-
-
+                    pygame.event.get()
                     mouse_status = (pygame.mouse.get_pressed())    # Check if LMB has been clicked
         
                     if(time.time() - start >= 2):   #  If the driver doesn't click a mouse button in 2 seconds
@@ -298,7 +282,7 @@ def oddball():
                     
             else:
                 beat_type = 5 #"Normal"
-                pygame.mixer.music.load(programPath + r"tones\\" +r"1000hz.wav")
+                pygame.mixer.music.load(path+r"1000hz.wav")
                 pygame.mixer.music.play(0)        
                 start = time.time()
                 sound_present_time = datetime.datetime.now().isoformat()
@@ -328,33 +312,31 @@ def oddball():
                     
                 if(break_flag == True):
                     break
+            #a = time.time()
             time1 = []
             
             
-<<<<<<< HEAD
+            row.append(beat_sl_no)
             row.append(sound_present_time)
-            -row.append(beat_sl_no)
             row.append(beat_type)
             row.append(response_type)
             row.append(sound_response_time)
             row.append(response_time)
             print(row)
-=======
-            row = [beat_sl_no,sound_present_time,beat_type,response_type,sound_response_time,response_time]
->>>>>>> 6d0ae1526ea5f0d4a0d869082e7dd8368e69e263
             writer.writerow(row)
         
         pygame.quit()    
 
 
-#thread initialization  
+#Threads
+
 t1 = threading.Thread(target=start_read, args=()) 
 t2 = threading.Thread(target=oddball,args=())
 t1.daemon = True
 t2.daemon = True
 
 
-#checks for COM-ports and lists all available ports  
+
 def findComPorts(menu):
     print("COM port detected")
     menu = menu
@@ -364,7 +346,7 @@ def findComPorts(menu):
     elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
         # this excludes your current terminal "/dev/tty"
         ports = glob.glob('/dev/tty[A-Za-z]*')
-    elif sys.platform.startswithe('darwin'):
+    elif sys.platform.startswith('darwin'):
         ports = glob.glob('/dev/tty.*')
     else:
         raise EnvironmentError('Unsupported platform')
@@ -414,7 +396,7 @@ def display(a):
         
                 t1.start()
                 #Odd ball disabled for now
-                t2.start()
+                #t2.start()
                 
             except (OSError, serial.SerialException):
                 QMessageBox.warning(mainWindow, 'Error', "COM Port not available \n Choose another one", QMessageBox.Ok , QMessageBox.Ok)
@@ -464,7 +446,7 @@ def updateGraph():
 #     global buffer
 #     #print("Inside animate")
 #     #pullData = open("eegdata.txt","r").read()
-#     #dataList = pullData.split('\n')louikjh
+#     #dataList = pullData.split('\n')
     
 #     x = (pd.read_csv(r"data_1.csv",header=None)[1][:4000]).tolist()
 #     m = wirinECGx.f(data,500.0)
@@ -543,20 +525,21 @@ def startBciProcess():
 
 def update():
     global ecgBuffer
+    global q
     global heartRate
+    global ecgBufy
     global ecgPlot
-    global ppgPlot 
-    global respPlot 
-    
     
      
     
     try:
+        #print(ecgBufy)
+        #print(ecgBuffer[4])
         ecgPlot.clear()
         #heartRate.setText("Heart Rate: {}".format(ecgBuffer[0]))
+        #ecgPlot.plot(ecgBuffer[2],ecgBuffer[3] ,pen=None, symbol='o')
+        #ecgPlot.plot(ecgBuffer[5])
         ecgPlot.plot(ecgBufy)
-        ppgPlot.plot(ppgBufy)
-        respPlot.plot(respBufy)
     
     except:
         traceback.print_exc()
@@ -679,13 +662,8 @@ if __name__ == '__main__':
     plotSplitter.addWidget(ppgPlot)
     
     #GSR Chart    
-<<<<<<< HEAD
-    gsrPlot = pg.PlotWidget(title="Respiration")
+    gsrPlot = pg.PlotWidget(title="GSR")
     plotSplitter.addWidget(gsrPlot)
-=======
-    respPlot = pg.PlotWidget(title="Respiration")
-    plotSplitter.addWidget(respPlot)
->>>>>>> 6d0ae1526ea5f0d4a0d869082e7dd8368e69e263
 
     horizontalSplitter = QSplitter(Qt.Horizontal)
 

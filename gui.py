@@ -1,27 +1,26 @@
-#Essential imports
+#import essential performance optimization dependencies 
 import sys, glob, time, random, threading, csv, datetime, traceback, serial
 from functools import partial 
 from multiprocessing import Process, Queue
 
-#GUI Libraries
+#import GUI libraries 
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
-#Main libraries
-import pandas as pd #for CSV
-import numpy as np #for manipulating data
-import pygame #for Odd Ball UI
-from pygame.locals import *
-from pyOpenBCI import OpenBCICyton 
+#import main libraries
+import pandas as pd
+import numpy as np
+import pygame
+from pyOpenBCI import OpenBCICyton
 import pyOpenBCI
 
-#Graphing
+#import graphing libraries 
 from pyqtgraph.Qt import QtGui, QtCore
 import pyqtgraph as pg
 import pyqtgraph.widgets.RemoteGraphicsView
 
-#Custom Modules
+#import custom modules
 import csvwriter 
 from csvwriter import *
 import wirinECGx
@@ -31,17 +30,17 @@ import os
 
 #Variables to be tweaked 
 baudRate = 115200
-programPath = os.path.dirname(os.path.abspath(__file__)) + "\\"
+programPath = (os.path.dirname(os.path.abspath(__file__)))
 graphInterval = 10
-openBCIFile = "newFile2"#.csv
-arduinoFile = "newFile1" #.csv
-oddballFile = "write"
+openBCIFile = "newFile2.csv"#.csv
+arduinoFile = "newFile1.csv" #.csv
+oddballFile = "write.csv"
 
 #Fonts
 titleFont = QtGui.QFont("Times", 14, QtGui.QFont.Bold) 
 textFont = QtGui.QFont("Times", 12)
 
-#Globals
+#global variable declarations 
 openBCIStream = []
 buttonAction = "None"
 board = None
@@ -55,10 +54,8 @@ respBufy = []
 ecgBufx = []
 ppgBufy = []
 ppgBufx = []
-    
 data = []
 ix = 0
-
 y1 = []
 y2 = []
 y3 = []
@@ -69,11 +66,9 @@ y7 = []
 y8 = []
 xss = []
 data = []
-
 bx = 0
 
-
-#Handle the annotation
+#data annotation handling 
 def annotator(button):
     global buttonAction
     if button.isChecked():
@@ -121,6 +116,7 @@ def start_read():
     while(running):
         
         data = ser.read()
+        print(data)
         mySer.handle_data(int.from_bytes(data,"little"))
         try:
             ecgBufy.append(mySer.ECG[-1])
@@ -134,26 +130,8 @@ def start_read():
             
         except:
             pass
-        
-        # #data = ",".join(map(str,l1[count]))
-        # ecgBufy.append(result[1][count]) 
-        # ecgBufx.append(count)
-        # count += 1
-        # #print(count)
-        # systime = datetime.datetime.now().isoformat()
-        # #data = data + c 
-        # #inp = filewriter(data,"newFile",buttonAction,systime)
-        
-
-        
-        # ecgBufy = ecgBufy[-4000:]
-        # ecgBufx = ecgBufx[-4000:]
-         
-        # if(count % 4000 == 0):
-        #     ecgBuffer = wirinECGx.f(ecgBufx, ecgBufy, 500.0)
-        #     #print(ecgBuffer)
       
-    
+#module implementing the oddball paradigm experiment 
 def oddball():
     global running
     pygame.init()
@@ -161,7 +139,7 @@ def oddball():
     precision = 50 # Dynamic variable
     beat_sl_no = 0
   
-    with open(programPath + oddballFile + ".csv", 'w+', newline = '') as writeFile:
+    with open(os.path.join(programPath,oddballFile), 'w+', newline = '') as writeFile:
         print(writeFile)
         writer = csv.writer(writeFile, delimiter = ',')
         
@@ -207,7 +185,7 @@ def oddball():
                 
                 # "Odd Ball"
                 beat_type = 7 
-                pygame.mixer.music.load(programPath + r"tones\\" +r"500hz.wav")
+                pygame.mixer.music.load(os.path.join(programPath,"tones","500hz.wav"))
                 pygame.mixer.music.play(0)        
                 sound_present_time = datetime.datetime.now().time()
                 
@@ -250,7 +228,7 @@ def oddball():
                     
             else:
                 beat_type = 5 #"Normal"
-                pygame.mixer.music.load(programPath + r"tones\\" +r"1000hz.wav")
+                pygame.mixer.music.load(os.path.join(programPath,"tones","1000hz.wav"))
                 pygame.mixer.music.play(0)        
                 start = time.time()
                 sound_present_time = datetime.datetime.now().isoformat()
@@ -283,21 +261,26 @@ def oddball():
             time1 = []
             
             
-            row = [beat_sl_no,sound_present_time,beat_type,response_type,sound_response_time,response_time]
+            row.append(sound_present_time)
+            row.append(beat_sl_no)
+            row.append(beat_type)
+            row.append(response_type)
+            row.append(sound_response_time)
+            row.append(response_time)
+            print(row)
             writer.writerow(row)
         
         pygame.quit()    
 
 
-#Threads
-
+#thread initialization  
 t1 = threading.Thread(target=start_read, args=()) 
 t2 = threading.Thread(target=oddball,args=())
 t1.daemon = True
 t2.daemon = True
 
 
-#This function searchs for available COM Ports
+#checks for COM-ports and lists all available ports  
 def findComPorts(menu):
     print("COM port detected")
     menu = menu
@@ -361,7 +344,7 @@ def display(a):
         
                 t1.start()
                 #Odd ball disabled for now
-                t2.start()
+                #t2.start()
                 
             except (OSError, serial.SerialException):
                 QMessageBox.warning(mainWindow, 'Error', "COM Port not available \n Choose another one", QMessageBox.Ok , QMessageBox.Ok)

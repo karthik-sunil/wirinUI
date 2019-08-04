@@ -1,1 +1,18 @@
-Objective: Mental stress is detrimental to cardiovascular health, being a risk factor for coronary heart disease and a trigger for cardiac events. However, it is not currently routinely assessed. The aim of this study was to identify features of the photoplethysmogram (PPG) pulse wave which are indicative of mental stress. Approach: A numerical model of pulse wave propagation was used to simulate blood pressure signals, from which simulated PPG pulse waves were estimated using a transfer function. Pulse waves were simulated at six levels of stress by changing the model input parameters both simultaneously and individually, in accordance with haemodynamic changes associated with stress. Thirty-two feature measurements were extracted from pulse waves at three measurement sites: the brachial, radial and temporal arteries. Features which changed significantly with stress were identified using the Mann–Kendall monotonic trend test. Main results: Seventeen features exhibited significant trends with stress in measurements from at least one site. Three features showed significant trends at all three sites: the time from pulse onset to peak, the time from the dicrotic notch to pulse end, and the pulse rate. More features showed significant trends at the radial artery (15) than the brachial (8) or temporal (7) arteries. Most features were influenced by multiple input parameters. Significance: The features identified in this study could be used to monitor stress in healthcare and consumer devices. Measurements at the radial artery may provide superior performance than the brachial or temporal arteries. In vivo studies are required to confirm these observations
+In this work, we analyze changes in respiration during
+emotional stress induced by a modification of the Trier
+Social Stress Test. The following stages in the test were
+analyzed: the pre-relaxing stage, the story telling stage,
+the anticipation of stress and the video exposition stage.
+Respiration signal is recorded during the whole test us-
+ing a thoracic band. Power spectral density (PSD) of res-
+piration is computed in running windows using a modifi-
+cation of Welch periodogram in which sufficiently peaked
+spectra are averaged. Then, respiratory frequency (F R ) is
+estimated from the “peaked-conditioned” averaged spec-
+tra. Results show that respiratory rate is significantly
+(p < 0.05 according to the Friedman test) higher, while
+a measure of spectral peakness and the percentage of PSD
+used to compute (F R ) is lower during stress stages than
+during relax. These results suggest that the respiration-
+related parameters have potential discrimination power
+for stress level assessment

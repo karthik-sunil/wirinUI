@@ -1,12 +1,12 @@
 from gtts import gTTS 
 import os
-#from pygame import mixer
+from pygame import mixer
 #fw = open("readthis.txt", "w")
 #inp = input("enter text: ")
 #fw.write(inp)
 #fw.close() 
 f = open("readthis.txt", "r")
-text = f.read()
+text = f.readlines()
 f.close() 
 language = "en-us"
 gtts_obj = gTTS(text= text, lang = language, slow = False )

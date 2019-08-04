@@ -1,0 +1,21 @@
+Experiment: Odd Ball Expt
+Normal sound: 500 Hz
+Odd sound: 1000 Hz
+Marker for normal sound: 5
+Marker for odd sound: 7
+Marker for correct click: 1
+Marker for incorrect click: 0
+ 
+Sound,Response,Result
+5,Click,0
+5,No Click,1
+7,Click,1
+7,No click,0
+ 
+Sl No,Sound Present Time,Beat Type,Response Type,Key Press Time,Response Time
+2019-07-25T06:42:12.073475,1,5,1,2019-07-25T06:42:14.074709,2
+2019-07-25T06:42:16.562589,2,5,1,2019-07-25T06:42:18.563460,2
+06:42:22.164560,3,7,0,06:42:24.165521,2
+06:42:28.198194,4,7,0,06:42:30.198852,2
+06:42:32.877089,5,7,0,06:42:34.880015,2
+2019-07-25T06:42:38.382701,6,5,1,2019-07-25T06:42:40.382788,2

@@ -1,7 +1,8 @@
 import csv 
 
 def filewriter(sentence,filename, annotation,systime):
-    filename = filename + ".csv"
+    if(not filename[-3:] == "csv"):
+        filename = filename + ".csv"
     l = sentence.split(",")
     a = []
     for i,x in enumerate(l):
